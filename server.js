@@ -553,6 +553,7 @@ function normalizeSubmission(input) {
 function evaluateSRESubmission(task, submission) {
   const answer = (submission.answer || '').trim();
   const lowerAnswer = answer.toLowerCase();
+  const topicId = task.topicId || '';
   
   if (answer.length < 40) {
     return {
@@ -564,10 +565,10 @@ Your answer is too brief or incomplete. As a Site Reliability Engineer, detailed
 
 ### 🔍 What is Missing
 - The implementation / script or detailed steps were not provided.
-- Core technical reasoning explaining system internals (e.g. \`/proc\`, signals, timers, or error handling) was omitted.
+- Core technical reasoning explaining system internals was omitted.
 
 ### 💡 Socratic Hint & Question
-What happens to your monitoring process if the filesystem becomes completely 100% full before the alert can be logged? How does using \`/proc\` or standard defensive bash flags (\`set -euo pipefail\`) protect against unintended script execution?
+What happens to your service during a real production incident if error handling, timeouts, or recovery steps are omitted? How does defensive engineering protect availability?
 
 ### 🚀 Next Steps
 Review the problem statement and practical lab instructions. Draft your complete solution and resubmit for evaluation.`
@@ -577,45 +578,264 @@ Review the problem statement and practical lab instructions. Draft your complete
   let passCount = 0;
   const strengths = [];
   const gaps = [];
+  let socraticHint = '';
 
-  // Check 1: Script & Commands
-  if (lowerAnswer.includes('df') || lowerAnswer.includes('awk') || lowerAnswer.includes('bash') || lowerAnswer.includes('#!/bin/bash') || lowerAnswer.includes('python') || lowerAnswer.includes('curl') || lowerAnswer.includes('tcpdump')) {
-    passCount++;
-    strengths.push('Included practical command-line implementation or script logic.');
+  // Topic-specific evaluation rules for all 15 SRE Roadmap Topics
+  if (topicId === 'p1-t1') {
+    // Linux Fundamentals
+    if (lowerAnswer.includes('df') || lowerAnswer.includes('awk') || lowerAnswer.includes('bash') || lowerAnswer.includes('#!/bin/bash') || lowerAnswer.includes('ps') || lowerAnswer.includes('chmod')) {
+      passCount++; strengths.push('Included practical command-line implementation or script logic.');
+    } else gaps.push('No concrete command implementation or script provided (e.g. using `df -Ph`, `awk`, or system utilities).');
+
+    if (lowerAnswer.includes('threshold') || lowerAnswer.includes('80') || lowerAnswer.includes('-gt') || lowerAnswer.includes('>') || lowerAnswer.includes('alert')) {
+      passCount++; strengths.push('Identified capacity/threshold metrics and alert trigger logic.');
+    } else gaps.push('Did not demonstrate explicit threshold comparison against capacity limits.');
+
+    if (lowerAnswer.includes('/proc') || lowerAnswer.includes('inode') || lowerAnswer.includes('fd') || lowerAnswer.includes('deleted') || lowerAnswer.includes('lsof')) {
+      passCount++; strengths.push('Demonstrated deep understanding of Linux virtual filesystems (/proc) and unlinked open file descriptors.');
+    } else gaps.push('Explain how to locate deleted open files consuming disk space using /proc/<PID>/fd or lsof.');
+
+    if (lowerAnswer.includes('sigterm') || lowerAnswer.includes('sigkill') || lowerAnswer.includes('kill -9') || lowerAnswer.includes('systemd') || lowerAnswer.includes('timer')) {
+      passCount++; strengths.push('Correctly articulated process signal handling (SIGTERM vs SIGKILL) and systemd timer advantages.');
+    } else gaps.push('Address the critical difference between SIGTERM and SIGKILL, and the benefits of systemd timers over cron.');
+
+    socraticHint = passCount >= 3 
+      ? 'In an incident where a deleted file is still consuming disk space because a process holds the open file descriptor, how would you safely truncate that file without restarting the service (`> /proc/<PID>/fd/<FD>`)?'
+      : 'In production, `kill -9` (`SIGKILL`) should never be your first choice. Why can a process not catch or handle `SIGKILL`, and what happens to in-flight data?';
+
+  } else if (topicId === 'p1-t2') {
+    // Networking Basics
+    if (lowerAnswer.includes('ping') || lowerAnswer.includes('traceroute') || lowerAnswer.includes('mtr') || lowerAnswer.includes('curl') || lowerAnswer.includes('tcpdump') || lowerAnswer.includes('ss')) {
+      passCount++; strengths.push('Provided structured network diagnostic command pipeline across layers 3, 4, and 7.');
+    } else gaps.push('List explicit diagnostic commands across network layers (e.g. ping, traceroute, dig, ss, curl -v, tcpdump).');
+
+    if (lowerAnswer.includes('syn') || lowerAnswer.includes('syn-ack') || lowerAnswer.includes('etimedout') || lowerAnswer.includes('firewall') || lowerAnswer.includes('security group')) {
+      passCount++; strengths.push('Accurately analyzed TCP handshake packet drop / firewall filtering behavior.');
+    } else gaps.push('Explain what SYN without SYN-ACK indicates in a TCP trace (packet drop / firewall filtering vs connection refused RST).');
+
+    if (lowerAnswer.includes('resolv.conf') || lowerAnswer.includes('servfail') || lowerAnswer.includes('dig +trace') || lowerAnswer.includes('dns') || lowerAnswer.includes('nameserver')) {
+      passCount++; strengths.push('Clear DNS failure resolution methodology tracing from /etc/resolv.conf to upstream resolvers.');
+    } else gaps.push('Detail the step-by-step diagnostic workflow when encountering DNS SERVFAIL errors.');
+
+    socraticHint = 'When curl fails with Connection Refused vs Connection Timed Out, which one received an explicit TCP RST packet from the server?';
+
+  } else if (topicId === 'p1-t3') {
+    // Bash Scripting
+    if (lowerAnswer.includes('set -e') || lowerAnswer.includes('pipefail') || lowerAnswer.includes('#!/bin/bash') || lowerAnswer.includes('#!/usr/bin/env bash')) {
+      passCount++; strengths.push('Utilized defensive Bash programming boilerplate (set -euo pipefail).');
+    } else gaps.push('Include standard defensive Bash settings: set -euo pipefail and quote safety.');
+
+    if (lowerAnswer.includes('tar') || lowerAnswer.includes('backup') || lowerAnswer.includes('mtime') || lowerAnswer.includes('delete') || lowerAnswer.includes('retention')) {
+      passCount++; strengths.push('Implemented automated backup archiving with timestamping and retention pruning.');
+    } else gaps.push('Specify backup archiving, compression verification, and older file pruning.');
+
+    if (lowerAnswer.includes('sighup') || lowerAnswer.includes('trap') || lowerAnswer.includes('rotate') || lowerAnswer.includes('logger')) {
+      passCount++; strengths.push('Demonstrated production-safe log rotation using SIGHUP or trap exit handlers.');
+    } else gaps.push('Explain how to signal a daemon to reopen its log file handles without dropping active connections (e.g. via SIGHUP).');
+
+    socraticHint = 'Why is `find ... -delete` safer than piping find output into `xargs rm` when dealing with spaces or strange characters in filenames?';
+
+  } else if (topicId === 'p2-t4') {
+    // Version Control (Git)
+    if (lowerAnswer.includes('filter-repo') || lowerAnswer.includes('bfg') || lowerAnswer.includes('history') || lowerAnswer.includes('force-push') || lowerAnswer.includes('revoke')) {
+      passCount++; strengths.push('Correctly articulated permanent secret remediation using history-rewriting tools and credential revocation.');
+    } else gaps.push('Explain why `git rm` is insufficient for committed secrets, and detail the usage of git-filter-repo or BFG plus credential revocation.');
+
+    if (lowerAnswer.includes('rebase -i') || lowerAnswer.includes('squash') || lowerAnswer.includes('fixup')) {
+      passCount++; strengths.push('Outlined interactive rebase workflow for squashing commits into clean conventional PRs.');
+    } else gaps.push('Explain the git rebase -i squashing procedure.');
+
+    if (lowerAnswer.includes('merge') || lowerAnswer.includes('linear') || lowerAnswer.includes('conflict') || lowerAnswer.includes('gitops')) {
+      passCount++; strengths.push('Discussed architectural trade-offs between merge commits and linear rebase histories in GitOps repositories.');
+    } else gaps.push('Compare merge commits vs rebasing in an infrastructure-as-code repository.');
+
+    socraticHint = 'When a secret is committed to a public or shared git repository, why must credential revocation happen BEFORE history rewriting?';
+
+  } else if (topicId === 'p2-t5') {
+    // Python Programming
+    if (lowerAnswer.includes('requests') || lowerAnswer.includes('urllib') || lowerAnswer.includes('socket') || lowerAnswer.includes('import')) {
+      passCount++; strengths.push('Clean Python implementation with proper library usage.');
+    } else gaps.push('Provide complete Python code structure with standard libraries.');
+
+    if (lowerAnswer.includes('timeout=') || lowerAnswer.includes('timeout') || lowerAnswer.includes('requestexception')) {
+      passCount++; strengths.push('Applied defensive SRE networking standards with explicit outbound request timeouts.');
+    } else gaps.push('Every outbound network call MUST specify an explicit timeout parameter.');
+
+    if (lowerAnswer.includes('ssl') || lowerAnswer.includes('cert') || lowerAnswer.includes('notafter') || lowerAnswer.includes('expiry') || lowerAnswer.includes('json')) {
+      passCount++; strengths.push('Implemented TLS certificate inspection and structured JSON CLI output.');
+    } else gaps.push('Extract TLS certificate expiration timestamp and support structured JSON output.');
+
+    socraticHint = 'What happens to a Python HTTP worker pool if outbound requests do not have timeouts and an upstream endpoint stalls indefinitely?';
+
+  } else if (topicId === 'p2-t6') {
+    // Databases Basics
+    if (lowerAnswer.includes('pg_stat_activity') || lowerAnswer.includes('processlist') || lowerAnswer.includes('cancel') || lowerAnswer.includes('terminate')) {
+      passCount++; strengths.push('Identified database diagnostic views and safe query termination mechanics.');
+    } else gaps.push('Use pg_stat_activity to find slow queries and explain pg_cancel_backend vs pg_terminate_backend.');
+
+    if (lowerAnswer.includes('index') || lowerAnswer.includes('seq scan') || lowerAnswer.includes('explain') || lowerAnswer.includes('b-tree')) {
+      passCount++; strengths.push('Demonstrated clear understanding of query execution plans and index performance.');
+    } else gaps.push('Explain the performance difference between Sequential Scan and Index Scan in EXPLAIN ANALYZE.');
+
+    if (lowerAnswer.includes('pg_dump') || lowerAnswer.includes('backup') || lowerAnswer.includes('restore') || lowerAnswer.includes('wal')) {
+      passCount++; strengths.push('Provided automated database backup and disaster recovery restoration validation procedures.');
+    } else gaps.push('Include automated database backup commands and recovery verification steps.');
+
+    socraticHint = 'Why is an untested database backup not considered a real backup in Site Reliability Engineering?';
+
+  } else if (topicId === 'p2-t7') {
+    // Containerization (Docker)
+    if (lowerAnswer.includes('dockerfile') || lowerAnswer.includes('multi-stage') || lowerAnswer.includes('as builder') || lowerAnswer.includes('alpine') || lowerAnswer.includes('slim')) {
+      passCount++; strengths.push('Employed multi-stage Docker build pattern for minimal image footprint.');
+    } else gaps.push('Use multi-stage Dockerfile builds to separate compile-time tools from runtime image.');
+
+    if (lowerAnswer.includes('user ') || lowerAnswer.includes('nonroot') || lowerAnswer.includes('appuser') || lowerAnswer.includes('healthcheck')) {
+      passCount++; strengths.push('Implemented non-root container execution and explicit health checks.');
+    } else gaps.push('Specify a non-root USER and an explicit HEALTHCHECK instruction in the Dockerfile.');
+
+    if (lowerAnswer.includes('compose') || lowerAnswer.includes('cgroups') || lowerAnswer.includes('namespaces') || lowerAnswer.includes('limits') || lowerAnswer.includes('depends_on')) {
+      passCount++; strengths.push('Configured multi-container compose architecture with resource limits and kernel isolation awareness.');
+    } else gaps.push('Include resource constraints (CPU/memory limits) in Docker Compose and explain namespace/cgroup isolation.');
+
+    socraticHint = 'If a container running as root suffers a remote code execution exploit, what prevents or allows the attacker from accessing host kernel resources?';
+
+  } else if (topicId === 'p3-t8') {
+    // Cloud Platforms (AWS)
+    if (lowerAnswer.includes('vpc') && (lowerAnswer.includes('subnet') || lowerAnswer.includes('cidr'))) {
+      passCount++; strengths.push('Designed multi-AZ VPC network topology with public and private subnet segregation.');
+    } else gaps.push('Detail VPC subnet layout with CIDR blocks across at least 2 Availability Zones.');
+
+    if (lowerAnswer.includes('nat') || lowerAnswer.includes('igw') || lowerAnswer.includes('route table') || lowerAnswer.includes('alb')) {
+      passCount++; strengths.push('Correctly placed Internet Gateways, NAT Gateways, and Application Load Balancers.');
+    } else gaps.push('Explain internet ingress/egress using Internet Gateways and NAT Gateways.');
+
+    if (lowerAnswer.includes('security group') || lowerAnswer.includes('iam') || lowerAnswer.includes('asg') || lowerAnswer.includes('auto scaling')) {
+      passCount++; strengths.push('Configured least-privilege security groups and auto-scaling resilience.');
+    } else gaps.push('Address security group isolation between application and database tiers.');
+
+    socraticHint = 'Why are Security Groups considered stateful while Network ACLs are stateless, and how does this affect return traffic?';
+
+  } else if (topicId === 'p3-t9') {
+    // Configuration Management (Ansible)
+    if (lowerAnswer.includes('playbook') || lowerAnswer.includes('role') || lowerAnswer.includes('tasks:') || lowerAnswer.includes('main.yml')) {
+      passCount++; strengths.push('Structured Ansible automation into modular tasks and roles.');
+    } else gaps.push('Provide a structured Ansible playbook or role (tasks, templates, handlers).');
+
+    if (lowerAnswer.includes('idempotent') || lowerAnswer.includes('state:') || lowerAnswer.includes('changed=0')) {
+      passCount++; strengths.push('Ensured idempotency so repeated executions produce consistent desired state.');
+    } else gaps.push('Explain how your Ansible automation ensures idempotency.');
+
+    if (lowerAnswer.includes('handler') || lowerAnswer.includes('notify:') || lowerAnswer.includes('template') || lowerAnswer.includes('systemd')) {
+      passCount++; strengths.push('Used handlers for conditional service restarts upon template modifications.');
+    } else gaps.push('Use Ansible handlers to trigger service reloads only when configuration files actually change.');
+
+    socraticHint = 'What is the operational difference between executing `ansible-playbook --check` (dry-run) and executing against production nodes?';
+
+  } else if (topicId === 'p4-t10') {
+    // Monitoring & Observability
+    if (lowerAnswer.includes('sli') && lowerAnswer.includes('slo') && (lowerAnswer.includes('error budget') || lowerAnswer.includes('budget'))) {
+      passCount++; strengths.push('Mathematically defined SLIs, SLOs, and Error Budgets for production availability.');
+    } else gaps.push('Clearly specify the Service Level Indicator (SLI), Service Level Objective (SLO), and Error Budget calculation.');
+
+    if (lowerAnswer.includes('rate(') || lowerAnswer.includes('histogram_quantile') || lowerAnswer.includes('promql') || lowerAnswer.includes('prometheus')) {
+      passCount++; strengths.push('Formulated accurate PromQL queries for error rates and percentile latencies.');
+    } else gaps.push('Provide valid PromQL queries for 5xx error percentage and P99 latency.');
+
+    if (lowerAnswer.includes('burn rate') || lowerAnswer.includes('policy') || lowerAnswer.includes('alertmanager') || lowerAnswer.includes('golden signals')) {
+      passCount++; strengths.push('Implemented multi-window burn rate alerting and an actionable Error Budget policy.');
+    } else gaps.push('Define multi-window burn rate alerts and the engineering actions triggered when error budgets are exhausted.');
+
+    socraticHint = 'Why is alerting on a single 5-minute spike in error rate more prone to false alarms than a multi-window burn rate alert?';
+
+  } else if (topicId === 'p4-t11') {
+    // CI/CD Pipelines
+    if (lowerAnswer.includes('pipeline') || lowerAnswer.includes('workflow') || lowerAnswer.includes('actions') || lowerAnswer.includes('.github/workflows')) {
+      passCount++; strengths.push('Created end-to-end Pipeline as Code configuration.');
+    } else gaps.push('Provide declarative CI/CD pipeline workflow configuration.');
+
+    if (lowerAnswer.includes('test') || lowerAnswer.includes('trivy') || lowerAnswer.includes('scan') || lowerAnswer.includes('lint')) {
+      passCount++; strengths.push('Included automated testing and container security vulnerability gating.');
+    } else gaps.push('Include automated testing and container vulnerability scanning stages.');
+
+    if (lowerAnswer.includes('canary') || lowerAnswer.includes('rollback') || lowerAnswer.includes('blue/green') || lowerAnswer.includes('promote')) {
+      passCount++; strengths.push('Engineered progressive canary delivery with automated rollback upon metric regression.');
+    } else gaps.push('Explain automated rollback mechanics when canary error rates exceed thresholds.');
+
+    socraticHint = 'How does an automated canary analysis tool like Flagger or Argo Rollouts decide whether to promote or abort a deployment?';
+
+  } else if (topicId === 'p4-t12') {
+    // Kubernetes
+    if (lowerAnswer.includes('deployment') && (lowerAnswer.includes('readinessprobe') || lowerAnswer.includes('livenessprobe'))) {
+      passCount++; strengths.push('Configured Kubernetes health probes with startup/readiness/liveness parameters.');
+    } else gaps.push('Include both readinessProbe and livenessProbe in your pod specification.');
+
+    if (lowerAnswer.includes('requests') && lowerAnswer.includes('limits') && (lowerAnswer.includes('cpu') || lowerAnswer.includes('memory'))) {
+      passCount++; strengths.push('Defined explicit resource requests and limits preventing noisy neighbor issues.');
+    } else gaps.push('Specify CPU and memory resource requests and limits.');
+
+    if (lowerAnswer.includes('hpa') || lowerAnswer.includes('pdb') || lowerAnswer.includes('rollingupdate') || lowerAnswer.includes('maxunavailable')) {
+      passCount++; strengths.push('Configured Horizontal Pod Autoscaling and Pod Disruption Budgets for zero downtime.');
+    } else gaps.push('Include Horizontal Pod Autoscaler (HPA) and Pod Disruption Budget (PDB) configurations.');
+
+    socraticHint = 'If a pod fails its readinessProbe, does Kubernetes restart the container? How does that differ from livenessProbe failure?';
+
+  } else if (topicId === 'p4-t13') {
+    // Incident Management & On-Call
+    if (lowerAnswer.includes('runbook') && (lowerAnswer.includes('triage') || lowerAnswer.includes('mitigation') || lowerAnswer.includes('commands'))) {
+      passCount++; strengths.push('Authored actionable production runbook with concrete diagnostic commands.');
+    } else gaps.push('Provide an actionable runbook with trigger conditions, triage commands, and mitigation steps.');
+
+    if (lowerAnswer.includes('post-mortem') || lowerAnswer.includes('postmortem') || lowerAnswer.includes('timeline') || lowerAnswer.includes('utc')) {
+      passCount++; strengths.push('Structured blameless post-mortem with high-resolution timestamped timeline.');
+    } else gaps.push('Include a timestamped timeline of events in your post-mortem.');
+
+    if (lowerAnswer.includes('5 whys') || lowerAnswer.includes('root cause') || lowerAnswer.includes('action items') || lowerAnswer.includes('blameless')) {
+      passCount++; strengths.push('Conducted rigorous 5 Whys analysis identifying systemic vulnerabilities and assigned action items.');
+    } else gaps.push('Apply the 5 Whys methodology and outline preventative engineering action items.');
+
+    socraticHint = 'Why do Google and leading SRE organizations strictly prohibit naming individuals in incident post-mortem documents?';
+
+  } else if (topicId === 'p5-t14') {
+    // Focus Areas
+    if (lowerAnswer.includes('mesh') || lowerAnswer.includes('istio') || lowerAnswer.includes('tracing') || lowerAnswer.includes('opentelemetry') || lowerAnswer.includes('vault') || lowerAnswer.includes('chaos')) {
+      passCount++; strengths.push('Detailed technical architecture for chosen specialization domain.');
+    } else gaps.push('Select a focus area (Service Mesh, Distributed Tracing, or Vault/Security) and outline the architecture.');
+
+    if (lowerAnswer.includes('architecture') || lowerAnswer.includes('config') || lowerAnswer.includes('manifest') || lowerAnswer.includes('code')) {
+      passCount++; strengths.push('Provided concrete implementation manifests and technical configurations.');
+    } else gaps.push('Provide sample configuration manifests or code snippets.');
+
+    if (lowerAnswer.includes('overhead') || lowerAnswer.includes('rollback') || lowerAnswer.includes('failure') || lowerAnswer.includes('latency')) {
+      passCount++; strengths.push('Evaluated performance overhead, latency impact, and failure modes.');
+    } else gaps.push('Analyze operational readiness, latency impact, and rollback strategies.');
+
+    socraticHint = 'What is the CPU and latency penalty introduced by sidecar proxies in a service mesh, and how do you decide if the security/observability benefits outweigh it?';
+
+  } else if (topicId === 'p5-t15') {
+    // Soft Skills Development
+    if (lowerAnswer.includes('rfc') || lowerAnswer.includes('adr') || lowerAnswer.includes('proposal') || lowerAnswer.includes('context')) {
+      passCount++; strengths.push('Structured formal Architecture Decision Record (ADR) / RFC following industry standards.');
+    } else gaps.push('Structure your proposal as a formal RFC or ADR with Context, Decision, and Status.');
+
+    if (lowerAnswer.includes('alternatives') || lowerAnswer.includes('trade-off') || lowerAnswer.includes('pros') || lowerAnswer.includes('cons')) {
+      passCount++; strengths.push('Deliberated architectural alternatives and trade-offs objectively.');
+    } else gaps.push('Include alternative solutions evaluated and articulate the technical trade-offs.');
+
+    if (lowerAnswer.includes('rollout') || lowerAnswer.includes('migration') || lowerAnswer.includes('teams') || lowerAnswer.includes('adoption')) {
+      passCount++; strengths.push('Formulated practical cross-team migration and adoption roadmap.');
+    } else gaps.push('Explain the cross-team adoption plan and developer enablement.');
+
+    socraticHint = 'When introducing a new reliability standard across 20 dev teams, why is creating automated linting and templates more effective than writing mandatory policy documents?';
+
   } else {
-    gaps.push('No concrete command implementation or script provided (e.g. using `df -Ph`, `awk`, or network utilities).');
+    // Generic fallback for any other SRE task
+    if (lowerAnswer.length > 150) passCount += 2;
+    if (lowerAnswer.includes('sre') || lowerAnswer.includes('reliability') || lowerAnswer.includes('production')) passCount++;
+    strengths.push('Demonstrated foundational engineering reasoning.');
+    socraticHint = 'How does this solution ensure zero downtime and resilience during unexpected system failures?';
   }
 
-  // Check 2: Threshold, Metrics or Verification
-  if (lowerAnswer.includes('threshold') || lowerAnswer.includes('80') || lowerAnswer.includes('-gt') || lowerAnswer.includes('>') || lowerAnswer.includes('alert') || lowerAnswer.includes('status_code') || lowerAnswer.includes('syn')) {
-    passCount++;
-    strengths.push('Identified capacity/threshold metrics and alert trigger logic.');
-  } else {
-    gaps.push('Did not demonstrate explicit threshold comparison against capacity limits or protocol state checks.');
-  }
-
-  // Check 3: System Internals (/proc, signals, sockets, or timers)
-  const mentionsProc = lowerAnswer.includes('/proc') || lowerAnswer.includes('inode') || lowerAnswer.includes('fd') || lowerAnswer.includes('deleted') || lowerAnswer.includes('lsof');
-  const mentionsSignals = lowerAnswer.includes('sigterm') || lowerAnswer.includes('sigkill') || lowerAnswer.includes('kill -9') || lowerAnswer.includes('signal');
-  const mentionsScheduling = lowerAnswer.includes('systemd') || lowerAnswer.includes('timer') || lowerAnswer.includes('cron') || lowerAnswer.includes('journalctl');
-  const mentionsNetwork = lowerAnswer.includes('tcpdump') || lowerAnswer.includes('syn') || lowerAnswer.includes('dns') || lowerAnswer.includes('curl') || lowerAnswer.includes('timeout') || lowerAnswer.includes('servfail');
-
-  if (mentionsProc || mentionsSignals || mentionsScheduling || mentionsNetwork) {
-    passCount += 2;
-    strengths.push('Demonstrated solid understanding of operating system and networking internals.');
-  } else {
-    gaps.push('Theoretical questions regarding OS internals (/proc, SIGTERM vs SIGKILL, systemd timers, or TCP packet flow) were not fully addressed.');
-  }
-
-  // Check 4: SRE defensive thinking
-  if (lowerAnswer.includes('set -e') || lowerAnswer.includes('pipefail') || lowerAnswer.includes('exit') || lowerAnswer.includes('tmpfs') || lowerAnswer.includes('logger') || lowerAnswer.includes('timeout') || lowerAnswer.includes('exception')) {
-    passCount++;
-    strengths.push('Employed defensive SRE engineering practices (exit codes, virtual filesystem filtering, or timeouts).');
-  } else {
-    gaps.push('Consider defensive practices: filtering pseudo-filesystems (tmpfs/squashfs), trapping unexpected exits, or adding network timeouts.');
-  }
-
-  const isPass = passCount >= 3;
+  const isPass = passCount >= 2;
   const status = isPass ? 'PASS' : 'NEEDS REVISION';
 
   return {
@@ -634,9 +854,7 @@ ${strengths.map(s => `- ${s}`).join('\n')}
 ${gaps.length > 0 ? gaps.map(g => `- ${g}`).join('\n') : '- No critical gaps detected. Clean production-oriented mindset.'}
 
 ### 💡 Socratic Hint & Question
-${isPass 
-  ? 'To push your skills further: In an incident where a deleted file is still consuming disk space because a process holds the open file descriptor, how would you safely truncate that file without restarting the service (`> /proc/<PID>/fd/<FD>`)?'
-  : 'Remember: In production, `kill -9` (`SIGKILL`) should never be your first choice. Why can a process not catch or handle `SIGKILL`, and what happens to in-flight data or database connections when it dies abruptly?'}
+${socraticHint}
 
 ### 🚀 Next Steps
 ${isPass

@@ -70,9 +70,11 @@
     skipMissionBtn: $('#skipMissionBtn'),
     detailViewNav: $('#detailViewNav'),
     tabRoadmap: $('#tabRoadmap'),
+    tabGuide: $('#tabGuide'),
     tabProjects: $('#tabProjects'),
     tabAllItems: $('#tabAllItems'),
     sreRoadmapContainer: $('#sreRoadmapContainer'),
+    sreGuideContainer: $('#sreGuideContainer'),
     sreProjectsContainer: $('#sreProjectsContainer'),
     classicViewContainer: $('#classicViewContainer'),
     taskRunnerStatusBadge: $('#taskRunnerStatusBadge'),
@@ -841,18 +843,21 @@
     const tasks = course.tasks || [];
 
     const orderedTopics = [
-      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t1', topicTitle: 'Linux & OS Fundamentals' },
-      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t2', topicTitle: 'Computer Networking Fundamentals' },
-      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t3', topicTitle: 'Programming / Scripting (Python or Go)' },
-      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t1', topicTitle: 'Containers & Docker' },
-      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t2', topicTitle: 'Kubernetes Fundamentals' },
-      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t3', topicTitle: 'Cloud Fundamentals (AWS/GCP)' },
-      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Automation, IaC & CI/CD (Weeks 15–20)', topicId: 'p3-t1', topicTitle: 'Infrastructure as Code (Terraform)' },
-      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Automation, IaC & CI/CD (Weeks 15–20)', topicId: 'p3-t2', topicTitle: 'CI/CD Pipelines' },
-      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t1', topicTitle: 'Metrics & Prometheus/Grafana' },
-      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t2', topicTitle: 'Logging & Tracing (Loki/Jaeger)' },
-      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t3', topicTitle: 'SRE Principles & Practices' },
-      { phaseId: 'phase-5', phaseTitle: 'Phase 5: Advanced SRE & Capstone Projects (Weeks 29–36)', topicId: 'p5-t1', topicTitle: 'Capstone Projects' }
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Months 1–3)', topicId: 'p1-t1', topicTitle: '1. Linux Fundamentals' },
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Months 1–3)', topicId: 'p1-t2', topicTitle: '2. Networking Basics' },
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Months 1–3)', topicId: 'p1-t3', topicTitle: '3. Basic Scripting (Bash)' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Skills (Months 4–6)', topicId: 'p2-t4', topicTitle: '4. Version Control (Git)' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Skills (Months 4–6)', topicId: 'p2-t5', topicTitle: '5. Programming Fundamentals (Python)' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Skills (Months 4–6)', topicId: 'p2-t6', topicTitle: '6. Databases Basics' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Skills (Months 4–6)', topicId: 'p2-t7', topicTitle: '7. Containerization (Docker)' },
+      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Infrastructure & Cloud (Months 7–9)', topicId: 'p3-t8', topicTitle: '8. Cloud Platforms (AWS)' },
+      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Infrastructure & Cloud (Months 7–9)', topicId: 'p3-t9', topicTitle: '9. Configuration Management (Ansible)' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Advanced SRE Concepts (Months 10–12)', topicId: 'p4-t10', topicTitle: '10. Monitoring & Observability' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Advanced SRE Concepts (Months 10–12)', topicId: 'p4-t11', topicTitle: '11. CI/CD Pipelines' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Advanced SRE Concepts (Months 10–12)', topicId: 'p4-t12', topicTitle: '12. Kubernetes (Container Orchestration)' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Advanced SRE Concepts (Months 10–12)', topicId: 'p4-t13', topicTitle: '13. Incident Management & On-Call' },
+      { phaseId: 'phase-5', phaseTitle: 'Phase 5: Specialization & Growth (Month 13+)', topicId: 'p5-t14', topicTitle: '14. Choose Your Focus Areas' },
+      { phaseId: 'phase-5', phaseTitle: 'Phase 5: Specialization & Growth (Month 13+)', topicId: 'p5-t15', topicTitle: '15. Soft Skills Development' }
     ];
 
     let targetTopic = null;
@@ -941,53 +946,56 @@
       {
         id: 'phase-1',
         title: 'Phase 1: Foundation',
-        weeks: 'Weeks 1–6',
-        description: 'Linux internals, virtual filesystems, computer networking, protocols, and Python/Go automation.',
+        timeframe: 'Months 1–3',
+        description: 'Linux fundamentals, operating system internals, computer networking, protocols, and Bash automation.',
         topics: [
-          { id: 'p1-t1', title: 'Linux & OS Fundamentals', weeks: 'Weeks 1–2', icon: 'bi-terminal' },
-          { id: 'p1-t2', title: 'Computer Networking Fundamentals', weeks: 'Weeks 3–4', icon: 'bi-diagram-2' },
-          { id: 'p1-t3', title: 'Programming / Scripting (Python or Go)', weeks: 'Weeks 5–6', icon: 'bi-code-slash' }
+          { id: 'p1-t1', title: '1. Linux Fundamentals', timeframe: 'Month 1', icon: 'bi-terminal' },
+          { id: 'p1-t2', title: '2. Networking Basics', timeframe: 'Month 2', icon: 'bi-diagram-2' },
+          { id: 'p1-t3', title: '3. Basic Scripting (Bash)', timeframe: 'Month 3', icon: 'bi-code-square' }
         ]
       },
       {
         id: 'phase-2',
-        title: 'Phase 2: Core Infrastructure & Cloud',
-        weeks: 'Weeks 7–14',
-        description: 'Containers, Docker architecture, Kubernetes orchestration, and AWS/GCP cloud primitives.',
+        title: 'Phase 2: Core Skills',
+        timeframe: 'Months 4–6',
+        description: 'Version control with Git, programming with Python, relational database administration, and Docker containerization.',
         topics: [
-          { id: 'p2-t1', title: 'Containers & Docker', weeks: 'Weeks 7–8', icon: 'bi-box-seam' },
-          { id: 'p2-t2', title: 'Kubernetes Fundamentals', weeks: 'Weeks 9–11', icon: 'bi-grid-3x3-gap' },
-          { id: 'p2-t3', title: 'Cloud Fundamentals (AWS / GCP)', weeks: 'Weeks 12–14', icon: 'bi-cloud' }
+          { id: 'p2-t4', title: '4. Version Control (Git)', timeframe: 'Month 4', icon: 'bi-git' },
+          { id: 'p2-t5', title: '5. Programming Fundamentals (Python)', timeframe: 'Month 4–5', icon: 'bi-code-slash' },
+          { id: 'p2-t6', title: '6. Databases Basics', timeframe: 'Month 5', icon: 'bi-database' },
+          { id: 'p2-t7', title: '7. Containerization (Docker)', timeframe: 'Month 6', icon: 'bi-box-seam' }
         ]
       },
       {
         id: 'phase-3',
-        title: 'Phase 3: Automation, IaC & CI/CD',
-        weeks: 'Weeks 15–20',
-        description: 'Infrastructure as Code with Terraform (state locking, drift detection) and automated CI/CD pipelines.',
+        title: 'Phase 3: Infrastructure & Cloud',
+        timeframe: 'Months 7–9',
+        description: 'Cloud platform architectures (AWS EC2, VPC, IAM, ALB, ASG) and scalable configuration management with Ansible.',
         topics: [
-          { id: 'p3-t1', title: 'Infrastructure as Code (Terraform)', weeks: 'Weeks 15–17', icon: 'bi-cpu' },
-          { id: 'p3-t2', title: 'CI/CD Pipelines (GitHub Actions / GitLab)', weeks: 'Weeks 18–20', icon: 'bi-arrow-repeat' }
+          { id: 'p3-t8', title: '8. Cloud Platforms (AWS)', timeframe: 'Months 7–8', icon: 'bi-cloud' },
+          { id: 'p3-t9', title: '9. Configuration Management (Ansible)', timeframe: 'Month 9', icon: 'bi-gear-wide-connected' }
         ]
       },
       {
         id: 'phase-4',
-        title: 'Phase 4: Observability & SRE Principles',
-        weeks: 'Weeks 21–28',
-        description: 'The Three Pillars (Prometheus, Loki, Jaeger), Four Golden Signals, SLIs/SLOs, Error Budgets, and Postmortems.',
+        title: 'Phase 4: Advanced SRE Concepts',
+        timeframe: 'Months 10–12',
+        description: 'Observability & Monitoring (Prometheus/Grafana/SLOs), CI/CD pipelines, Kubernetes container orchestration, and incident response.',
         topics: [
-          { id: 'p4-t1', title: 'Observability: Metrics & Monitoring', weeks: 'Weeks 21–23', icon: 'bi-graph-up' },
-          { id: 'p4-t2', title: 'Observability: Logging & Tracing', weeks: 'Weeks 24–25', icon: 'bi-file-earmark-medical' },
-          { id: 'p4-t3', title: 'SRE Principles & Incident Management', weeks: 'Weeks 26–28', icon: 'bi-shield-check' }
+          { id: 'p4-t10', title: '10. Monitoring & Observability', timeframe: 'Month 10', icon: 'bi-graph-up' },
+          { id: 'p4-t11', title: '11. CI/CD Pipelines', timeframe: 'Month 10–11', icon: 'bi-arrow-repeat' },
+          { id: 'p4-t12', title: '12. Kubernetes (Container Orchestration)', timeframe: 'Month 11–12', icon: 'bi-grid-3x3-gap' },
+          { id: 'p4-t13', title: '13. Incident Management & On-Call', timeframe: 'Month 12', icon: 'bi-shield-exclamation' }
         ]
       },
       {
         id: 'phase-5',
-        title: 'Phase 5: Advanced SRE & Capstone Projects',
-        weeks: 'Weeks 29–36',
-        description: 'Service Mesh, Chaos Engineering, Advanced Operators, and 4 Production Portfolio Projects.',
+        title: 'Phase 5: Specialization & Growth',
+        timeframe: 'Month 13+',
+        description: 'Choose your specialization tracks (Platform, Observability, Security) and master professional technical communication & leadership.',
         topics: [
-          { id: 'p5-t1', title: 'Advanced SRE Topics & Capstone Projects', weeks: 'Weeks 29–36', icon: 'bi-stars' }
+          { id: 'p5-t14', title: '14. Choose Your Focus Areas', timeframe: 'Month 13+', icon: 'bi-stars' },
+          { id: 'p5-t15', title: '15. Soft Skills Development', timeframe: 'Month 13+', icon: 'bi-chat-heart' }
         ]
       }
     ];
@@ -1038,7 +1046,7 @@
               <div class="d-flex align-items-center gap-2">
                 <i class="bi ${topic.icon} fs-5 text-pink"></i>
                 <h5 class="mb-0 fw-bold">${escapeHtml(topic.title)}</h5>
-                <span class="badge bg-light text-dark border small">${escapeHtml(topic.weeks)}</span>
+                <span class="badge bg-light text-dark border small">${escapeHtml(topic.timeframe || topic.weeks || '')}</span>
               </div>
               <span class="topic-status-badge ${statusClass}">
                 <i class="bi ${statusIcon} me-1"></i> ${status}
@@ -1048,7 +1056,7 @@
             <div class="topic-subsections">
               <!-- Box 1: Concepts -->
               <div class="subsection-box">
-                <div class="subsection-title"><i class="bi bi-book text-pink"></i> 1. Concepts</div>
+                <div class="subsection-title"><i class="bi bi-book text-pink"></i> 1. Concepts & "Why"</div>
                 ${conceptLesson ? `
                   <p class="small text-muted mb-2">${escapeHtml(conceptLesson.title)}</p>
                   <div class="d-flex align-items-center justify-content-between">
@@ -1066,20 +1074,16 @@
               <!-- Box 2: Resources -->
               <div class="subsection-box">
                 <div class="subsection-title"><i class="bi bi-link-45deg text-pink"></i> 2. Curated Resources</div>
-                <div class="d-flex flex-wrap">
-                  ${topic.id === 'p1-t1' ? `
-                    <a href="https://linuxjourney.com/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Linux Journey</a>
-                    <a href="http://linuxcommand.org/tlcl.php" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Linux Command Line</a>
-                    <a href="https://overthewire.org/wargames/bandit/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> OverTheWire</a>
-                  ` : topic.id === 'p1-t2' ? `
-                    <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> MDN Networking</a>
-                    <a href="https://wizardzines.com/zines/networking/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Julia Evans Zines</a>
-                    <a href="https://www.youtube.com/@ByteByteGo" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> ByteByteGo</a>
-                  ` : topic.id === 'p1-t3' ? `
-                    <a href="https://automatetheboringstuff.com/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Automate the Boring Stuff</a>
-                    <a href="https://quii.gitbook.io/learn-go-with-tests" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Learn Go with Tests</a>
-                  ` : resourceLesson ? `
-                    <button class="btn btn-sm btn-outline-secondary open-concept-btn" data-lesson-id="${resourceLesson.id}"><i class="bi bi-collection me-1"></i> View Resources</button>
+                <div class="d-flex flex-wrap gap-1 align-items-center">
+                  ${resourceLesson && resourceLesson.resource ? `
+                    <a href="${escapeHtml(resourceLesson.resource)}" target="_blank" rel="noopener noreferrer" class="resource-chip">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> ${escapeHtml(resourceLesson.resource.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0])}
+                    </a>
+                  ` : ''}
+                  ${resourceLesson ? `
+                    <button class="btn btn-sm btn-outline-secondary open-concept-btn" data-lesson-id="${resourceLesson.id}">
+                      <i class="bi bi-collection me-1"></i> Books & Docs
+                    </button>
                   ` : '<span class="text-muted small">Roadmap links attached</span>'}
                 </div>
               </div>
@@ -1124,7 +1128,7 @@
               <div class="phase-title d-flex align-items-center gap-2">
                 <i class="bi bi-chevron-down text-pink transition-transform"></i>
                 <span>${escapeHtml(phase.title)}</span>
-                <span class="badge bg-pink text-white small">${escapeHtml(phase.weeks)}</span>
+                <span class="badge bg-pink text-white small">${escapeHtml(phase.timeframe || phase.weeks || '')}</span>
               </div>
               <p class="text-muted small mb-0">${escapeHtml(phase.description)}</p>
             </div>
@@ -1241,35 +1245,229 @@
       </div>`;
   }
 
+  function renderSreGuide() {
+    if (!els.sreGuideContainer) return;
+
+    els.sreGuideContainer.innerHTML = `
+      <div class="mb-4">
+        <h4 class="fw-bold mb-1">🧭 SRE Principles, Reading List & Study Guide</h4>
+        <p class="text-muted small">The foundational principles, recommended books, certifications, and weekly schedule from Santhosh Kumar Jampala's authoritative roadmap.</p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Card 1: Understanding SRE & What SREs Do -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100 shadow-sm border rounded-4 p-4" style="background: var(--ocb-surface);">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="badge bg-pink text-white"><i class="bi bi-info-circle-fill me-1"></i> Definition</span>
+              <h5 class="fw-bold mb-0">Understanding SRE & Core Responsibilities</h5>
+            </div>
+            <p class="text-muted small">
+              <strong>Site Reliability Engineering (SRE)</strong> is a discipline that applies software engineering principles to infrastructure and operations problems. SREs create scalable, automated, and highly reliable software systems.
+            </p>
+            <div class="small fw-bold text-muted mb-2 text-uppercase">What SREs Do Daily:</div>
+            <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Monitor and maintain uptime:</strong> Ensure distributed services meet rigorous availability targets.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Automate operational tasks:</strong> Eliminate repetitive manual work ("toil") through scripts and tools.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Design scalable infrastructure:</strong> Architect resilient multi-AZ cloud and container platforms.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Incident response & post-mortems:</strong> Lead crisis channels and run blameless retrospectives.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Balance velocity with stability:</strong> Use Error Budgets to negotiate release pace with product teams.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="bi bi-check2-circle text-pink mt-1"></i>
+                <span><strong>Define SLIs & SLOs:</strong> Measure real user happiness through quantifiable service indicators.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card 2: Essential SRE Principles -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100 shadow-sm border rounded-4 p-4" style="background: var(--ocb-surface);">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="badge bg-pink text-white"><i class="bi bi-shield-check me-1"></i> Core Mindset</span>
+              <h5 class="fw-bold mb-0">7 Essential SRE Principles to Internalize</h5>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">1</span>
+                <div class="small"><strong>Embrace Risk:</strong> 100% uptime is impossible and wasteful. Target realistic reliability aligned with user tolerance.</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">2</span>
+                <div class="small"><strong>Service Level Objectives:</strong> Define and measure what truly matters to users through clear SLIs and SLOs.</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">3</span>
+                <div class="small"><strong>Eliminate Toil:</strong> Automate repetitive manual operational tasks. Keep operational toil under 50% of your time.</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">4</span>
+                <div class="small"><strong>Monitoring & Alerting:</strong> Know your systems' health via the Four Golden Signals (Latency, Traffic, Errors, Saturation).</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">5</span>
+                <div class="small"><strong>Capacity Planning:</strong> Plan for infrastructure growth and demand spikes before failures occur.</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">6</span>
+                <div class="small"><strong>Blameless Post-Mortems:</strong> Treat incidents as opportunities to fix systemic vulnerabilities, not to assign blame.</div>
+              </div>
+              <div class="sre-principle-item">
+                <span class="sre-principle-num">7</span>
+                <div class="small"><strong>Gradual Rollouts:</strong> Reduce the blast radius of new deployments using rolling updates and canary stages.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Recommended Reading List -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100 shadow-sm border rounded-4 p-4" style="background: var(--ocb-surface);">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="badge bg-pink text-white"><i class="bi bi-book-half me-1"></i> Books</span>
+              <h5 class="fw-bold mb-0">Recommended Reading List</h5>
+            </div>
+            
+            <div class="mb-3">
+              <div class="small fw-bold text-muted mb-2 text-uppercase">Essential Books (Free Online):</div>
+              <div class="d-flex flex-column gap-2">
+                <a href="https://sre.google/sre-book/table-of-contents/" target="_blank" rel="noopener noreferrer" class="p-2 rounded border text-decoration-none d-flex align-items-center justify-content-between" style="background: var(--ocb-surface-2);">
+                  <span class="small fw-semibold text-dark"><i class="bi bi-google text-primary me-2"></i> Site Reliability Engineering (Google)</span>
+                  <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                </a>
+                <a href="https://sre.google/workbook/table-of-contents/" target="_blank" rel="noopener noreferrer" class="p-2 rounded border text-decoration-none d-flex align-items-center justify-content-between" style="background: var(--ocb-surface-2);">
+                  <span class="small fw-semibold text-dark"><i class="bi bi-journal-text text-success me-2"></i> The Site Reliability Workbook (Google)</span>
+                  <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                </a>
+                <a href="https://sre.google/books/building-secure-reliable-systems/" target="_blank" rel="noopener noreferrer" class="p-2 rounded border text-decoration-none d-flex align-items-center justify-content-between" style="background: var(--ocb-surface-2);">
+                  <span class="small fw-semibold text-dark"><i class="bi bi-shield-lock text-warning me-2"></i> Building Secure and Reliable Systems (Google)</span>
+                  <i class="bi bi-box-arrow-up-right small text-muted"></i>
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <div class="small fw-bold text-muted mb-2 text-uppercase">Paid Books Worth Buying:</div>
+              <div class="d-flex flex-column gap-2">
+                <div class="p-2 rounded border" style="background: var(--ocb-surface-2);">
+                  <div class="small fw-semibold text-dark">📖 The Phoenix Project</div>
+                  <div class="text-muted" style="font-size: 0.78rem;">By Gene Kim, Kevin Behr, George Spafford — Classic novel on DevOps transformation.</div>
+                </div>
+                <div class="p-2 rounded border" style="background: var(--ocb-surface-2);">
+                  <div class="small fw-semibold text-dark">📖 Seeking SRE</div>
+                  <div class="text-muted" style="font-size: 0.78rem;">By David N. Blank-Edelman — Case studies from diverse production engineering organizations.</div>
+                </div>
+                <div class="p-2 rounded border" style="background: var(--ocb-surface-2);">
+                  <div class="small fw-semibold text-dark">📖 Database Reliability Engineering</div>
+                  <div class="text-muted" style="font-size: 0.78rem;">By Laine Campbell & Charity Majors — Operating resilient database architectures.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Certifications & Weekly Study Schedule -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100 shadow-sm border rounded-4 p-4" style="background: var(--ocb-surface);">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="badge bg-pink text-white"><i class="bi bi-calendar3 me-1"></i> Routine</span>
+              <h5 class="fw-bold mb-0">Weekly Study Schedule & Certifications</h5>
+            </div>
+
+            <div class="mb-3">
+              <div class="small fw-bold text-muted mb-2 text-uppercase">Weekly Study Schedule (15–20 hrs/week):</div>
+              <div class="p-3 rounded border mb-2" style="background: var(--sre-pink-soft); border-color: var(--sre-pink-border);">
+                <div class="small fw-bold text-pink mb-1"><i class="bi bi-clock me-1"></i> Weekdays (2 hours / day):</div>
+                <div class="small text-muted mb-1">• <strong>1 hour:</strong> Focused learning (courses, books, technical reading)</div>
+                <div class="small text-muted">• <strong>1 hour:</strong> Hands-on terminal practice, coding, labs, and assignments</div>
+              </div>
+              <div class="p-3 rounded border" style="background: var(--ocb-surface-2);">
+                <div class="small fw-bold text-dark mb-1"><i class="bi bi-calendar-event me-1"></i> Weekends (4–6 hours total):</div>
+                <div class="small text-muted">• Work on larger projects or labs</div>
+                <div class="small text-muted">• Read SRE books and engineering blogs (Google, Netflix, Uber)</div>
+                <div class="small text-muted">• Watch SREcon conference presentations</div>
+                <div class="small text-muted">• Practice incident troubleshooting scenarios</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="small fw-bold text-muted mb-2 text-uppercase">Certifications to Consider:</div>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-light text-dark border p-2"><i class="bi bi-patch-check text-primary me-1"></i> LFCS (Linux Foundation)</span>
+                <span class="badge bg-light text-dark border p-2"><i class="bi bi-patch-check text-warning me-1"></i> AWS Solutions Architect (SAA)</span>
+                <span class="badge bg-light text-dark border p-2"><i class="bi bi-patch-check text-info me-1"></i> CKA (Kubernetes Admin)</span>
+                <span class="badge bg-light text-dark border p-2"><i class="bi bi-patch-check text-info me-1"></i> CKAD (Kubernetes Dev)</span>
+                <span class="badge bg-light text-dark border p-2"><i class="bi bi-patch-check text-purple me-1"></i> Terraform Associate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Staying Current & Pitfalls to Avoid -->
+        <div class="col-12">
+          <div class="card shadow-sm border rounded-4 p-4" style="background: var(--ocb-surface);">
+            <div class="row g-4">
+              <div class="col-12 col-md-6">
+                <h6 class="fw-bold mb-2 text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Common Pitfalls to Avoid</h6>
+                <ul class="list-unstyled small mb-0 d-flex flex-column gap-2 text-muted">
+                  <li><strong>1. Tutorial Hell:</strong> Build hands-on projects; don't just passively consume video tutorials.</li>
+                  <li><strong>2. Trying to Learn Everything at Once:</strong> Focus on Linux and networking fundamentals first.</li>
+                  <li><strong>3. Skipping Linux:</strong> It is the foundation for Docker, cloud VMs, and Kubernetes.</li>
+                  <li><strong>4. Not Documenting:</strong> Keep written engineering notes, runbooks, and architectures.</li>
+                  <li><strong>5. Working in Isolation:</strong> Join SRE communities (Reddit r/sre, CNCF, Slack).</li>
+                  <li><strong>6. Ignoring Soft Skills:</strong> Communication and incident leadership are as critical as technical prowess.</li>
+                </ul>
+              </div>
+              <div class="col-12 col-md-6">
+                <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-rss-fill me-1"></i> Staying Current</h6>
+                <p class="small text-muted mb-2">Subscribe to top industry engineering channels to learn how large distributed organizations solve reliability at scale:</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-light text-dark border"><i class="bi bi-link me-1"></i> Google SRE Blog</span>
+                  <span class="badge bg-light text-dark border"><i class="bi bi-link me-1"></i> Netflix Tech Blog</span>
+                  <span class="badge bg-light text-dark border"><i class="bi bi-link me-1"></i> Uber Engineering Blog</span>
+                  <span class="badge bg-light text-dark border"><i class="bi bi-link me-1"></i> CNCF Blog</span>
+                  <span class="badge bg-light text-dark border"><i class="bi bi-youtube me-1"></i> SREcon YouTube</span>
+                  <span class="badge bg-light text-dark border"><i class="bi bi-broadcast me-1"></i> The Cloudcast Podcast</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function setupSreViewTabs() {
     if (!els.tabRoadmap || !els.tabProjects || !els.tabAllItems) return;
 
-    els.tabRoadmap.onclick = () => {
-      els.tabRoadmap.classList.add('active');
-      els.tabProjects.classList.remove('active');
-      els.tabAllItems.classList.remove('active');
-      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.remove('d-none');
-      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.add('d-none');
-      if (els.classicViewContainer) els.classicViewContainer.classList.add('d-none');
+    const setTab = (activeTab, showEl) => {
+      [els.tabRoadmap, els.tabGuide, els.tabProjects, els.tabAllItems].forEach(t => {
+        if (t) t.classList.toggle('active', t === activeTab);
+      });
+      [els.sreRoadmapContainer, els.sreGuideContainer, els.sreProjectsContainer, els.classicViewContainer].forEach(c => {
+        if (c) c.classList.toggle('d-none', c !== showEl);
+      });
     };
 
-    els.tabProjects.onclick = () => {
-      els.tabRoadmap.classList.remove('active');
-      els.tabProjects.classList.add('active');
-      els.tabAllItems.classList.remove('active');
-      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.add('d-none');
-      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.remove('d-none');
-      if (els.classicViewContainer) els.classicViewContainer.classList.add('d-none');
-    };
-
-    els.tabAllItems.onclick = () => {
-      els.tabRoadmap.classList.remove('active');
-      els.tabProjects.classList.remove('active');
-      els.tabAllItems.classList.add('active');
-      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.add('d-none');
-      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.add('d-none');
-      if (els.classicViewContainer) els.classicViewContainer.classList.remove('d-none');
-    };
+    els.tabRoadmap.onclick = () => setTab(els.tabRoadmap, els.sreRoadmapContainer);
+    if (els.tabGuide) els.tabGuide.onclick = () => setTab(els.tabGuide, els.sreGuideContainer);
+    els.tabProjects.onclick = () => setTab(els.tabProjects, els.sreProjectsContainer);
+    els.tabAllItems.onclick = () => setTab(els.tabAllItems, els.classicViewContainer);
   }
 
   function renderCourseDetail(course) {
@@ -1302,6 +1500,7 @@
       if (els.detailViewNav) els.detailViewNav.classList.remove('d-none');
       renderTodaysMission(course);
       renderSreRoadmap(course);
+      renderSreGuide();
       renderSreProjects(course);
       setupSreViewTabs();
     } else {
