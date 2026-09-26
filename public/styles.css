@@ -1735,3 +1735,234 @@ body.hidden-actions .course-card-head-actions {
   color: var(--ocb-text);
 }
 
+/* ==========================================================================
+   SRE Academy & Cute University Visual Theme
+   ========================================================================== */
+:root {
+  --sre-pink: #ec4899;
+  --sre-pink-hover: #db2777;
+  --sre-pink-soft: #fdf2f8;
+  --sre-pink-border: #fbcfe8;
+  --sre-pink-dark: #9d174d;
+  --sre-lavender: #f5f3ff;
+  --sre-card-bg: var(--ocb-surface);
+  --sre-card-border: var(--ocb-border);
+}
+
+[data-bs-theme="dark"] {
+  --sre-pink-soft: rgba(236, 72, 153, 0.12);
+  --sre-pink-border: rgba(236, 72, 153, 0.3);
+  --sre-pink-dark: #f472b6;
+  --sre-lavender: rgba(139, 92, 246, 0.08);
+}
+
+/* Utility classes for cute university accents */
+.text-pink { color: var(--sre-pink) !important; }
+.bg-pink { background-color: var(--sre-pink) !important; color: #fff !important; }
+.bg-pink-subtle { background-color: var(--sre-pink-soft) !important; color: var(--sre-pink-dark) !important; }
+.bg-pink-soft { background-color: var(--sre-pink-soft) !important; }
+.text-pink-dark { color: var(--sre-pink-dark) !important; }
+
+.btn-pink {
+  background-color: var(--sre-pink);
+  border-color: var(--sre-pink);
+  color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+.btn-pink:hover, .btn-pink:focus {
+  background-color: var(--sre-pink-hover);
+  border-color: var(--sre-pink-hover);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+}
+
+/* Mission Card */
+.mission-card {
+  background: linear-gradient(135deg, var(--ocb-surface) 0%, var(--sre-pink-soft) 100%);
+  border: 1px solid var(--sre-pink-border) !important;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.mission-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--sre-pink) 0%, #a855f7 100%);
+}
+.mission-badge {
+  background: linear-gradient(135deg, var(--sre-pink), #a855f7);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+}
+.mission-title {
+  font-weight: 700;
+  color: var(--ocb-text-strong);
+}
+.mission-step {
+  background: var(--ocb-surface);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--ocb-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+/* Navigation Pills */
+.sre-view-pills .nav-link {
+  color: var(--ocb-text);
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+}
+.sre-view-pills .nav-link.active {
+  background-color: var(--sre-pink);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+}
+
+/* Phase Accordion */
+.phase-accordion-item {
+  border: 1px solid var(--ocb-border);
+  border-radius: 14px;
+  margin-bottom: 1.25rem;
+  background: var(--ocb-surface);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.phase-accordion-item:hover {
+  border-color: var(--sre-pink-border);
+}
+.phase-header {
+  padding: 1rem 1.25rem;
+  background: var(--ocb-surface-2);
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--ocb-border);
+}
+.phase-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ocb-text-strong);
+  margin-bottom: 0.25rem;
+}
+.phase-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--ocb-border);
+  overflow: hidden;
+  width: 140px;
+}
+.phase-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sre-pink), #a855f7);
+  transition: width 0.3s;
+}
+
+/* Topic Card */
+.sre-topic-card {
+  border: 1px solid var(--ocb-border);
+  border-radius: 12px;
+  background: var(--ocb-surface);
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  transition: all 0.2s;
+}
+.sre-topic-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.sre-topic-card.current-active {
+  border-color: var(--sre-pink);
+  box-shadow: 0 0 0 1px var(--sre-pink);
+}
+.topic-status-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.status-not-started { background-color: var(--ocb-surface-3); color: var(--ocb-muted); }
+.status-in-progress { background-color: #dbeafe; color: #1e40af; }
+.status-needs-revision { background-color: #fef3c7; color: #b45309; }
+.status-completed { background-color: #dcfce7; color: #15803d; }
+
+/* Subsections inside topic */
+.topic-subsections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.subsection-box {
+  background: var(--ocb-surface-2);
+  border: 1px solid var(--ocb-border);
+  border-radius: 10px;
+  padding: 0.85rem;
+}
+.subsection-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ocb-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* SRE Mentor Guidance Banner */
+.sre-mentor-banner {
+  background: var(--sre-pink-soft);
+  border: 1px solid var(--sre-pink-border);
+  color: var(--ocb-text-strong);
+}
+.mentor-avatar-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--sre-pink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
+}
+
+/* Resource Link Chip */
+.resource-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--ocb-surface);
+  border: 1px solid var(--ocb-border);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--ocb-text);
+  text-decoration: none;
+  transition: all 0.15s;
+  margin-bottom: 0.35rem;
+  margin-right: 0.35rem;
+}
+.resource-chip:hover {
+  border-color: var(--sre-pink);
+  color: var(--sre-pink);
+  transform: translateY(-1px);
+}
+
+

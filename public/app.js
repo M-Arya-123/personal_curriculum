@@ -59,6 +59,25 @@
     addTaskBtn: $('#addTaskBtn'),
     tasksList: $('#tasksList'),
 
+    // SRE specific views and controls
+    todaysMissionCard: $('#todaysMissionCard'),
+    missionPhaseBadge: $('#missionPhaseBadge'),
+    missionTopicBadge: $('#missionTopicBadge'),
+    missionEstimatedTime: $('#missionEstimatedTime'),
+    missionTitle: $('#missionTitle'),
+    missionDescription: $('#missionDescription'),
+    startMissionBtn: $('#startMissionBtn'),
+    skipMissionBtn: $('#skipMissionBtn'),
+    detailViewNav: $('#detailViewNav'),
+    tabRoadmap: $('#tabRoadmap'),
+    tabProjects: $('#tabProjects'),
+    tabAllItems: $('#tabAllItems'),
+    sreRoadmapContainer: $('#sreRoadmapContainer'),
+    sreProjectsContainer: $('#sreProjectsContainer'),
+    classicViewContainer: $('#classicViewContainer'),
+    taskRunnerStatusBadge: $('#taskRunnerStatusBadge'),
+    taskRunnerEvalBadge: $('#taskRunnerEvalBadge'),
+
     courseModalEl: $('#courseModal'),
     courseModalTitle: $('#courseModalTitle'),
     courseForm: $('#courseForm'),
@@ -814,6 +833,445 @@
     loadCourses();
   }
 
+  let currentMissionItem = null;
+
+  function renderTodaysMission(course) {
+    if (!els.todaysMissionCard) return;
+    const lessons = course.lessons || [];
+    const tasks = course.tasks || [];
+
+    const orderedTopics = [
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t1', topicTitle: 'Linux & OS Fundamentals' },
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t2', topicTitle: 'Computer Networking Fundamentals' },
+      { phaseId: 'phase-1', phaseTitle: 'Phase 1: Foundation (Weeks 1–6)', topicId: 'p1-t3', topicTitle: 'Programming / Scripting (Python or Go)' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t1', topicTitle: 'Containers & Docker' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t2', topicTitle: 'Kubernetes Fundamentals' },
+      { phaseId: 'phase-2', phaseTitle: 'Phase 2: Core Infrastructure & Cloud (Weeks 7–14)', topicId: 'p2-t3', topicTitle: 'Cloud Fundamentals (AWS/GCP)' },
+      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Automation, IaC & CI/CD (Weeks 15–20)', topicId: 'p3-t1', topicTitle: 'Infrastructure as Code (Terraform)' },
+      { phaseId: 'phase-3', phaseTitle: 'Phase 3: Automation, IaC & CI/CD (Weeks 15–20)', topicId: 'p3-t2', topicTitle: 'CI/CD Pipelines' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t1', topicTitle: 'Metrics & Prometheus/Grafana' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t2', topicTitle: 'Logging & Tracing (Loki/Jaeger)' },
+      { phaseId: 'phase-4', phaseTitle: 'Phase 4: Observability & SRE Principles (Weeks 21–28)', topicId: 'p4-t3', topicTitle: 'SRE Principles & Practices' },
+      { phaseId: 'phase-5', phaseTitle: 'Phase 5: Advanced SRE & Capstone Projects (Weeks 29–36)', topicId: 'p5-t1', topicTitle: 'Capstone Projects' }
+    ];
+
+    let targetTopic = null;
+    let targetTask = null;
+    let targetLesson = null;
+
+    for (const t of orderedTopics) {
+      const topicTask = tasks.find(tk => tk.topicId === t.topicId);
+      const topicLessons = lessons.filter(l => l.topicId === t.topicId);
+      const conceptLesson = topicLessons.find(l => l.kind === 'concept') || topicLessons[0];
+      
+      const isTaskDone = topicTask && topicTask.status === 'COMPLETED';
+      const isConceptDone = conceptLesson && conceptLesson.isCompleted;
+
+      if (!isTaskDone || !isConceptDone) {
+        targetTopic = t;
+        targetTask = topicTask;
+        targetLesson = conceptLesson;
+        break;
+      }
+    }
+
+    if (!targetTopic) {
+      els.missionPhaseBadge.textContent = 'Curriculum Complete';
+      els.missionTopicBadge.textContent = 'All Phases Done';
+      els.missionTitle.textContent = '🎉 All SRE Roadmap Topics Completed!';
+      els.missionDescription.textContent = 'Outstanding accomplishment! You have completed all foundational, infrastructure, IaC, observability, and SRE principles coursework.';
+      els.missionEstimatedTime.textContent = 'Completed';
+      els.startMissionBtn.innerHTML = '<i class="bi bi-trophy-fill me-1"></i> Review Portfolio Projects';
+      els.startMissionBtn.onclick = () => {
+        if (els.tabProjects) els.tabProjects.click();
+      };
+      return;
+    }
+
+    currentMissionItem = { topic: targetTopic, task: targetTask, lesson: targetLesson };
+
+    els.missionPhaseBadge.textContent = targetTopic.phaseTitle.split('(')[0].trim();
+    els.missionTopicBadge.textContent = targetTopic.topicTitle;
+    els.missionEstimatedTime.textContent = (targetLesson && targetLesson.estimatedMinutes ? targetLesson.estimatedMinutes + ' minutes' : '45 minutes');
+
+    if (targetTask && targetTask.status === 'NEEDS REVISION') {
+      els.missionTitle.textContent = `⚠️ Revise: ${targetTask.title}`;
+      els.missionDescription.textContent = 'Your SRE Mentor provided revision guidance on your previous submission. Review the hints and update your solution to achieve PASS status.';
+      els.startMissionBtn.innerHTML = '<i class="bi bi-pencil-square me-1"></i> Revise Assignment';
+    } else if (targetLesson && !targetLesson.isCompleted) {
+      els.missionTitle.textContent = `📖 Study: ${targetLesson.title}`;
+      els.missionDescription.textContent = 'Read the system architecture concepts, inspect virtual filesystems (/proc), and prepare for practical exercises.';
+      els.startMissionBtn.innerHTML = '<i class="bi bi-book-half me-1"></i> Start Lesson Concepts';
+    } else if (targetTask) {
+      els.missionTitle.textContent = `📝 Assignment: ${targetTask.title}`;
+      els.missionDescription.textContent = 'Solve the hands-on SRE assignment, test your script/logic, and submit for evaluation by your Senior SRE Mentor.';
+      els.startMissionBtn.innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> Start Assignment';
+    } else {
+      els.missionTitle.textContent = `🎯 Mission: ${targetTopic.topicTitle}`;
+      els.missionDescription.textContent = 'Explore recommended resources and hands-on practice labs for this topic.';
+      els.startMissionBtn.innerHTML = '<i class="bi bi-compass me-1"></i> Explore Topic';
+    }
+
+    els.startMissionBtn.onclick = () => {
+      if (targetTask && (!targetLesson || targetLesson.isCompleted || targetTask.status === 'NEEDS REVISION')) {
+        openTaskRunner(targetTask.id);
+      } else if (targetLesson) {
+        openLessonResource(targetLesson);
+      }
+    };
+
+    els.skipMissionBtn.onclick = () => {
+      const idx = orderedTopics.findIndex(t => t.topicId === targetTopic.topicId);
+      if (idx >= 0 && idx < orderedTopics.length - 1) {
+        const nextTopic = orderedTopics[idx + 1];
+        const nextTask = tasks.find(tk => tk.topicId === nextTopic.topicId);
+        const nextLesson = lessons.find(l => l.topicId === nextTopic.topicId);
+        currentMissionItem = { topic: nextTopic, task: nextTask, lesson: nextLesson };
+        els.missionPhaseBadge.textContent = nextTopic.phaseTitle.split('(')[0].trim();
+        els.missionTopicBadge.textContent = nextTopic.topicTitle;
+        els.missionTitle.textContent = nextTask ? nextTask.title : nextTopic.topicTitle;
+      }
+    };
+  }
+
+  function renderSreRoadmap(course) {
+    if (!els.sreRoadmapContainer) return;
+
+    const phases = [
+      {
+        id: 'phase-1',
+        title: 'Phase 1: Foundation',
+        weeks: 'Weeks 1–6',
+        description: 'Linux internals, virtual filesystems, computer networking, protocols, and Python/Go automation.',
+        topics: [
+          { id: 'p1-t1', title: 'Linux & OS Fundamentals', weeks: 'Weeks 1–2', icon: 'bi-terminal' },
+          { id: 'p1-t2', title: 'Computer Networking Fundamentals', weeks: 'Weeks 3–4', icon: 'bi-diagram-2' },
+          { id: 'p1-t3', title: 'Programming / Scripting (Python or Go)', weeks: 'Weeks 5–6', icon: 'bi-code-slash' }
+        ]
+      },
+      {
+        id: 'phase-2',
+        title: 'Phase 2: Core Infrastructure & Cloud',
+        weeks: 'Weeks 7–14',
+        description: 'Containers, Docker architecture, Kubernetes orchestration, and AWS/GCP cloud primitives.',
+        topics: [
+          { id: 'p2-t1', title: 'Containers & Docker', weeks: 'Weeks 7–8', icon: 'bi-box-seam' },
+          { id: 'p2-t2', title: 'Kubernetes Fundamentals', weeks: 'Weeks 9–11', icon: 'bi-grid-3x3-gap' },
+          { id: 'p2-t3', title: 'Cloud Fundamentals (AWS / GCP)', weeks: 'Weeks 12–14', icon: 'bi-cloud' }
+        ]
+      },
+      {
+        id: 'phase-3',
+        title: 'Phase 3: Automation, IaC & CI/CD',
+        weeks: 'Weeks 15–20',
+        description: 'Infrastructure as Code with Terraform (state locking, drift detection) and automated CI/CD pipelines.',
+        topics: [
+          { id: 'p3-t1', title: 'Infrastructure as Code (Terraform)', weeks: 'Weeks 15–17', icon: 'bi-cpu' },
+          { id: 'p3-t2', title: 'CI/CD Pipelines (GitHub Actions / GitLab)', weeks: 'Weeks 18–20', icon: 'bi-arrow-repeat' }
+        ]
+      },
+      {
+        id: 'phase-4',
+        title: 'Phase 4: Observability & SRE Principles',
+        weeks: 'Weeks 21–28',
+        description: 'The Three Pillars (Prometheus, Loki, Jaeger), Four Golden Signals, SLIs/SLOs, Error Budgets, and Postmortems.',
+        topics: [
+          { id: 'p4-t1', title: 'Observability: Metrics & Monitoring', weeks: 'Weeks 21–23', icon: 'bi-graph-up' },
+          { id: 'p4-t2', title: 'Observability: Logging & Tracing', weeks: 'Weeks 24–25', icon: 'bi-file-earmark-medical' },
+          { id: 'p4-t3', title: 'SRE Principles & Incident Management', weeks: 'Weeks 26–28', icon: 'bi-shield-check' }
+        ]
+      },
+      {
+        id: 'phase-5',
+        title: 'Phase 5: Advanced SRE & Capstone Projects',
+        weeks: 'Weeks 29–36',
+        description: 'Service Mesh, Chaos Engineering, Advanced Operators, and 4 Production Portfolio Projects.',
+        topics: [
+          { id: 'p5-t1', title: 'Advanced SRE Topics & Capstone Projects', weeks: 'Weeks 29–36', icon: 'bi-stars' }
+        ]
+      }
+    ];
+
+    const lessons = course.lessons || [];
+    const tasks = course.tasks || [];
+
+    const html = phases.map((phase, pIdx) => {
+      const phaseTopics = phase.topics;
+      let completedTopicsCount = 0;
+
+      const topicsHtml = phaseTopics.map((topic) => {
+        const topicLessons = lessons.filter(l => l.topicId === topic.id);
+        const topicTask = tasks.find(t => t.topicId === topic.id);
+
+        const conceptLesson = topicLessons.find(l => l.kind === 'concept') || topicLessons[0];
+        const resourceLesson = topicLessons.find(l => l.kind === 'resource');
+        const practiceLesson = topicLessons.find(l => l.kind === 'practice');
+
+        let status = 'NOT STARTED';
+        let statusClass = 'status-not-started';
+        let statusIcon = 'bi-hourglass';
+
+        if (topicTask && topicTask.status === 'COMPLETED') {
+          status = 'COMPLETED';
+          statusClass = 'status-completed';
+          statusIcon = 'bi-check-circle-fill';
+          completedTopicsCount++;
+        } else if (topicTask && topicTask.status === 'NEEDS REVISION') {
+          status = 'NEEDS REVISION';
+          statusClass = 'status-needs-revision';
+          statusIcon = 'bi-exclamation-triangle-fill';
+        } else if (topicTask && topicTask.submissions && topicTask.submissions.length > 0) {
+          status = 'SUBMITTED';
+          statusClass = 'status-in-progress';
+          statusIcon = 'bi-send-check';
+        } else if (conceptLesson && conceptLesson.isCompleted) {
+          status = 'IN PROGRESS';
+          statusClass = 'status-in-progress';
+          statusIcon = 'bi-play-fill';
+        }
+
+        const isCurrentActive = currentMissionItem && currentMissionItem.topic && currentMissionItem.topic.topicId === topic.id;
+
+        return `
+          <div class="sre-topic-card ${isCurrentActive ? 'current-active' : ''}" id="topic-${topic.id}">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi ${topic.icon} fs-5 text-pink"></i>
+                <h5 class="mb-0 fw-bold">${escapeHtml(topic.title)}</h5>
+                <span class="badge bg-light text-dark border small">${escapeHtml(topic.weeks)}</span>
+              </div>
+              <span class="topic-status-badge ${statusClass}">
+                <i class="bi ${statusIcon} me-1"></i> ${status}
+              </span>
+            </div>
+
+            <div class="topic-subsections">
+              <!-- Box 1: Concepts -->
+              <div class="subsection-box">
+                <div class="subsection-title"><i class="bi bi-book text-pink"></i> 1. Concepts</div>
+                ${conceptLesson ? `
+                  <p class="small text-muted mb-2">${escapeHtml(conceptLesson.title)}</p>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <button class="btn btn-sm btn-outline-primary open-concept-btn" data-lesson-id="${conceptLesson.id}">
+                      <i class="bi bi-eye me-1"></i> Read Note
+                    </button>
+                    <label class="small text-muted d-flex align-items-center gap-1 cursor-pointer">
+                      <input type="checkbox" class="toggle-concept-check form-check-input mt-0" data-lesson-id="${conceptLesson.id}" ${conceptLesson.isCompleted ? 'checked' : ''}>
+                      <span>${conceptLesson.isCompleted ? 'Studied' : 'Mark done'}</span>
+                    </label>
+                  </div>
+                ` : '<span class="text-muted small">Concepts in progress</span>'}
+              </div>
+
+              <!-- Box 2: Resources -->
+              <div class="subsection-box">
+                <div class="subsection-title"><i class="bi bi-link-45deg text-pink"></i> 2. Curated Resources</div>
+                <div class="d-flex flex-wrap">
+                  ${topic.id === 'p1-t1' ? `
+                    <a href="https://linuxjourney.com/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Linux Journey</a>
+                    <a href="http://linuxcommand.org/tlcl.php" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Linux Command Line</a>
+                    <a href="https://overthewire.org/wargames/bandit/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> OverTheWire</a>
+                  ` : topic.id === 'p1-t2' ? `
+                    <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> MDN Networking</a>
+                    <a href="https://wizardzines.com/zines/networking/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Julia Evans Zines</a>
+                    <a href="https://www.youtube.com/@ByteByteGo" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> ByteByteGo</a>
+                  ` : topic.id === 'p1-t3' ? `
+                    <a href="https://automatetheboringstuff.com/" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Automate the Boring Stuff</a>
+                    <a href="https://quii.gitbook.io/learn-go-with-tests" target="_blank" rel="noopener noreferrer" class="resource-chip"><i class="bi bi-box-arrow-up-right"></i> Learn Go with Tests</a>
+                  ` : resourceLesson ? `
+                    <button class="btn btn-sm btn-outline-secondary open-concept-btn" data-lesson-id="${resourceLesson.id}"><i class="bi bi-collection me-1"></i> View Resources</button>
+                  ` : '<span class="text-muted small">Roadmap links attached</span>'}
+                </div>
+              </div>
+
+              <!-- Box 3: Practice -->
+              <div class="subsection-box">
+                <div class="subsection-title"><i class="bi bi-terminal text-pink"></i> 3. Hands-on Practice</div>
+                ${practiceLesson ? `
+                  <p class="small text-muted mb-2">${escapeHtml(practiceLesson.title)}</p>
+                  <button class="btn btn-sm btn-outline-primary open-concept-btn" data-lesson-id="${practiceLesson.id}">
+                    <i class="bi bi-code me-1"></i> View Lab Guide
+                  </button>
+                ` : '<span class="text-muted small">Practice labs attached</span>'}
+              </div>
+
+              <!-- Box 4: SRE Assignment -->
+              <div class="subsection-box" style="background: var(--sre-pink-soft); border-color: var(--sre-pink-border);">
+                <div class="subsection-title" style="color: var(--sre-pink-dark);"><i class="bi bi-stars"></i> 4. SRE Assignment</div>
+                ${topicTask ? `
+                  <p class="small fw-semibold mb-2" style="color: var(--sre-pink-dark);">${escapeHtml(topicTask.title)}</p>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <button class="btn btn-sm btn-pink open-sre-task-btn" data-task-id="${topicTask.id}">
+                      <i class="bi bi-pencil-square me-1"></i> ${topicTask.status === 'COMPLETED' ? 'Review Submission' : topicTask.status === 'NEEDS REVISION' ? 'Revise Work' : 'Open & Submit'}
+                    </button>
+                    <span class="badge ${topicTask.status === 'COMPLETED' ? 'bg-success' : topicTask.status === 'NEEDS REVISION' ? 'bg-warning text-dark' : 'bg-secondary'}">${topicTask.status}</span>
+                  </div>
+                ` : `
+                  <p class="small text-muted mb-2">Phase coursework overview</p>
+                  ${conceptLesson ? `<button class="btn btn-sm btn-outline-secondary open-concept-btn" data-lesson-id="${conceptLesson.id}">Read Overview</button>` : ''}
+                `}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const phasePct = Math.round((completedTopicsCount / phaseTopics.length) * 100);
+
+      return `
+        <div class="phase-accordion-item shadow-sm">
+          <div class="phase-header d-flex flex-wrap align-items-center justify-content-between gap-2" data-bs-toggle="collapse" data-bs-target="#collapsePhase${pIdx}">
+            <div>
+              <div class="phase-title d-flex align-items-center gap-2">
+                <i class="bi bi-chevron-down text-pink transition-transform"></i>
+                <span>${escapeHtml(phase.title)}</span>
+                <span class="badge bg-pink text-white small">${escapeHtml(phase.weeks)}</span>
+              </div>
+              <p class="text-muted small mb-0">${escapeHtml(phase.description)}</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <div class="text-end">
+                <div class="small fw-bold">${phasePct}% Complete</div>
+                <div class="phase-progress-bar">
+                  <div class="phase-progress-fill" style="width: ${phasePct}%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="collapsePhase${pIdx}" class="collapse ${pIdx === 0 ? 'show' : ''} p-3">
+            ${topicsHtml}
+          </div>
+        </div>`;
+    }).join('');
+
+    els.sreRoadmapContainer.innerHTML = html;
+
+    els.sreRoadmapContainer.querySelectorAll('.open-concept-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lessonId = btn.dataset.lessonId;
+        const lesson = (course.lessons || []).find(l => l.id === lessonId);
+        if (lesson) openLessonResource(lesson);
+      });
+    });
+
+    els.sreRoadmapContainer.querySelectorAll('.toggle-concept-check').forEach((chk) => {
+      chk.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lessonId = chk.dataset.lessonId;
+        toggleLesson(lessonId);
+      });
+    });
+
+    els.sreRoadmapContainer.querySelectorAll('.open-sre-task-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const taskId = btn.dataset.taskId;
+        openTaskRunner(taskId);
+      });
+    });
+  }
+
+  function renderSreProjects(course) {
+    if (!els.sreProjectsContainer) return;
+    const projects = [
+      {
+        id: 'proj-1',
+        title: 'Project 1: Production-Grade Kubernetes Platform',
+        phase: 'Phase 5: Capstone Projects (Weeks 33–36)',
+        description: 'End-to-end production platform on AWS/GCP provisioned with Terraform, running microservices with zero-downtime rollouts, automated HPA, Nginx Ingress, and complete Prometheus + Grafana observability.',
+        stack: ['Terraform', 'Kubernetes', 'Helm', 'Prometheus', 'Grafana', 'Nginx Ingress'],
+        suggestedDeliverables: 'Terraform modules, Helm values, Grafana dashboard JSON, Architecture diagram',
+      },
+      {
+        id: 'proj-2',
+        title: 'Project 2: Automated Incident Response System',
+        phase: 'Phase 5: Capstone Projects (Weeks 33–36)',
+        description: 'Automated remediation pipeline that catches Prometheus/Alertmanager webhooks, analyzes root cause logs via Python, notifies Slack, and executes self-healing actions (pod restarts, cache purges).',
+        stack: ['Python', 'Prometheus Alertmanager', 'FastAPI', 'Slack API', 'Docker'],
+        suggestedDeliverables: 'Webhook receiver service, automated remediation playbooks, incident postmortem template',
+      },
+      {
+        id: 'proj-3',
+        title: 'Project 3: Chaos Engineering & Resilience Testing Lab',
+        phase: 'Phase 5: Capstone Projects (Weeks 33–36)',
+        description: 'Deploy a multi-tier microservice, define realistic SLIs and SLOs (99.9% availability), inject chaos experiments using Chaos Mesh / LitmusChaos, and measure impact on your error budget.',
+        stack: ['Chaos Mesh', 'Kubernetes', 'PromQL', 'k6 Load Testing', 'Python'],
+        suggestedDeliverables: 'Chaos experiment YAMLs, error budget burn-rate alerts, post-chaos review report',
+      },
+      {
+        id: 'proj-4',
+        title: 'Project 4: Full CI/CD Pipeline with Automated Canary Deployments',
+        phase: 'Phase 5: Capstone Projects (Weeks 33–36)',
+        description: 'Continuous delivery pipeline with automated testing, container security scanning (Trivy), image signing, and canary rollout driven by real-time Prometheus error rate analysis.',
+        stack: ['GitHub Actions', 'ArgoCD / Flagger', 'Trivy', 'Docker', 'Kubernetes'],
+        suggestedDeliverables: '.github/workflows CI/CD configuration, ArgoCD app manifests, Canary metric analysis spec',
+      }
+    ];
+
+    els.sreProjectsContainer.innerHTML = `
+      <div class="mb-4">
+        <h4 class="fw-bold mb-1">🏗️ SRE Capstone Portfolio Projects</h4>
+        <p class="text-muted small">The definitive capstone projects from Phase 5 of the SRE Roadmap. Attach your code repositories, documentation notes, and mentor feedback here.</p>
+      </div>
+      <div class="row g-3">
+        ${projects.map(p => `
+          <div class="col-12 col-lg-6">
+            <div class="card h-100 shadow-sm border rounded-4 p-3" style="background: var(--ocb-surface);">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-pink text-white small">${escapeHtml(p.phase.split('(')[0].trim())}</span>
+                <span class="badge bg-secondary text-white small">Portfolio Project</span>
+              </div>
+              <h5 class="fw-bold mb-2">${escapeHtml(p.title)}</h5>
+              <p class="text-muted small mb-3">${escapeHtml(p.description)}</p>
+              <div class="mb-3">
+                <div class="small fw-semibold text-muted mb-1">Tech Stack:</div>
+                <div class="d-flex flex-wrap gap-1">
+                  ${p.stack.map(s => `<span class="badge bg-light text-dark border small">${escapeHtml(s)}</span>`).join('')}
+                </div>
+              </div>
+              <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted"><i class="bi bi-file-earmark-code me-1"></i> ${escapeHtml(p.suggestedDeliverables.split(',')[0])}</span>
+                <button class="btn btn-sm btn-outline-primary" onclick="alert('Project tracking: You can save your repository links and architectural notes directly in your SRE notes.')">
+                  <i class="bi bi-folder me-1"></i> Manage Project
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  function setupSreViewTabs() {
+    if (!els.tabRoadmap || !els.tabProjects || !els.tabAllItems) return;
+
+    els.tabRoadmap.onclick = () => {
+      els.tabRoadmap.classList.add('active');
+      els.tabProjects.classList.remove('active');
+      els.tabAllItems.classList.remove('active');
+      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.remove('d-none');
+      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.add('d-none');
+      if (els.classicViewContainer) els.classicViewContainer.classList.add('d-none');
+    };
+
+    els.tabProjects.onclick = () => {
+      els.tabRoadmap.classList.remove('active');
+      els.tabProjects.classList.add('active');
+      els.tabAllItems.classList.remove('active');
+      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.add('d-none');
+      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.remove('d-none');
+      if (els.classicViewContainer) els.classicViewContainer.classList.add('d-none');
+    };
+
+    els.tabAllItems.onclick = () => {
+      els.tabRoadmap.classList.remove('active');
+      els.tabProjects.classList.remove('active');
+      els.tabAllItems.classList.add('active');
+      if (els.sreRoadmapContainer) els.sreRoadmapContainer.classList.add('d-none');
+      if (els.sreProjectsContainer) els.sreProjectsContainer.classList.add('d-none');
+      if (els.classicViewContainer) els.classicViewContainer.classList.remove('d-none');
+    };
+  }
+
   function renderCourseDetail(course) {
     els.detailTitle.textContent = course.title;
     els.detailMeta.textContent = `${course.lessons.length} lesson${course.lessons.length === 1 ? '' : 's'} · updated ${formatDate(course.updatedAt)}`;
@@ -829,9 +1287,7 @@
     if (els.detailStatRemaining) els.detailStatRemaining.textContent = remaining;
     if (els.detailStatPct) els.detailStatPct.textContent = pct + '%';
     if (els.detailProgressBar) {
-      // Force a reflow before setting the width so the transition replays.
       els.detailProgressBar.style.width = '0%';
-      // eslint-disable-next-line no-unused-expressions
       els.detailProgressBar.offsetWidth;
       els.detailProgressBar.style.width = pct + '%';
     }
@@ -839,8 +1295,22 @@
       els.detailProgressTrack.classList.toggle('is-complete', total > 0 && pct === 100);
     }
 
-    // Tasks list (rendered regardless of whether lessons exist, so an
-    // empty course can still showcase tasks and vice versa).
+    // SRE Roadmap rendering and Today's Mission
+    const isSreCourse = (course.tags || []).some(t => t.toLowerCase() === 'sre') || (course.lessons || []).some(l => l.phaseId);
+    if (isSreCourse) {
+      if (els.todaysMissionCard) els.todaysMissionCard.classList.remove('d-none');
+      if (els.detailViewNav) els.detailViewNav.classList.remove('d-none');
+      renderTodaysMission(course);
+      renderSreRoadmap(course);
+      renderSreProjects(course);
+      setupSreViewTabs();
+    } else {
+      if (els.todaysMissionCard) els.todaysMissionCard.classList.add('d-none');
+      if (els.detailViewNav) els.detailViewNav.classList.add('d-none');
+      if (els.sreRoadmapContainer) els.sreRoadmapContainer.innerHTML = '';
+      if (els.classicViewContainer) els.classicViewContainer.classList.remove('d-none');
+    }
+
     renderTasksList(course);
 
     if (!course.lessons.length) {
@@ -1414,13 +1884,26 @@
     els.taskRunnerAnswer.disabled = false;
     els.taskRunnerSubmit.disabled = false;
     if (els.taskRunnerSpinner) els.taskRunnerSpinner.classList.add('d-none');
+
+    // Update status badge
+    if (els.taskRunnerStatusBadge) {
+      const st = task.status || 'NOT STARTED';
+      els.taskRunnerStatusBadge.textContent = st;
+      els.taskRunnerStatusBadge.className = `badge ${st === 'COMPLETED' ? 'bg-success' : st === 'NEEDS REVISION' ? 'bg-warning text-dark' : st === 'SUBMITTED' ? 'bg-info text-dark' : 'bg-secondary'}`;
+    }
+
     const last = (task.submissions && task.submissions.length)
       ? task.submissions[task.submissions.length - 1]
       : null;
     if (last && last.feedback) {
       els.taskRunnerFeedback.innerHTML = renderMarkdown(last.feedback);
+      if (els.taskRunnerEvalBadge) {
+        const isPass = /pass|pass\s*✅/i.test(last.feedback);
+        els.taskRunnerEvalBadge.innerHTML = `<span class="badge ${isPass ? 'bg-success' : 'bg-warning text-dark'}">${isPass ? 'PASS ✅' : 'NEEDS REVISION ⚠️'}</span>`;
+      }
     } else {
-      els.taskRunnerFeedback.innerHTML = '<span class="text-muted">Submit your answer to receive feedback.</span>';
+      els.taskRunnerFeedback.innerHTML = '<span class="text-muted">Submit your answer to receive detailed technical evaluation from your SRE mentor.</span>';
+      if (els.taskRunnerEvalBadge) els.taskRunnerEvalBadge.innerHTML = '';
     }
     renderTaskSubmissions(task);
     bs.taskRunnerModal.show();
@@ -1471,16 +1954,28 @@
     els.taskRunnerSubmit.disabled = true;
     els.taskRunnerAnswer.disabled = true;
     if (els.taskRunnerSpinner) els.taskRunnerSpinner.classList.remove('d-none');
-    els.taskRunnerFeedback.innerHTML = '<span class="text-muted">Asking the tutor…</span>';
+    els.taskRunnerFeedback.innerHTML = '<span class="text-muted">Senior SRE Mentor reviewing your submission…</span>';
     try {
       const result = await api('POST', `/api/courses/${state.activeCourseId}/tasks/${taskId}/submit`, { answer });
       const feedback = (result && result.submission && result.submission.feedback) || '';
       els.taskRunnerFeedback.innerHTML = renderMarkdown(feedback || '_No feedback returned._');
+      
+      const isPass = /pass|pass\s*✅/i.test(feedback);
+      if (els.taskRunnerEvalBadge) {
+        els.taskRunnerEvalBadge.innerHTML = `<span class="badge ${isPass ? 'bg-success' : 'bg-warning text-dark'}">${isPass ? 'PASS ✅' : 'NEEDS REVISION ⚠️'}</span>`;
+      }
+      if (els.taskRunnerStatusBadge) {
+        els.taskRunnerStatusBadge.textContent = isPass ? 'COMPLETED' : 'NEEDS REVISION';
+        els.taskRunnerStatusBadge.className = `badge ${isPass ? 'bg-success' : 'bg-warning text-dark'}`;
+      }
+
       const refreshed = await api('GET', `/api/courses/${state.activeCourseId}`);
       const idx = state.courses.findIndex((c) => c.id === state.activeCourseId);
       if (idx >= 0) state.courses[idx] = refreshed;
       const task = (refreshed.tasks || []).find((t) => t.id === taskId);
       if (task) renderTaskSubmissions(task);
+      renderCourseDetail(refreshed);
+      toast(isPass ? 'Submission PASSED! Topic completed.' : 'Submission reviewed: Revision requested.');
     } catch (err) {
       els.taskRunnerFeedback.innerHTML = `<span class="text-danger">${escapeHtml('Feedback failed: ' + err.message)}</span>`;
       toast('Feedback failed: ' + err.message);

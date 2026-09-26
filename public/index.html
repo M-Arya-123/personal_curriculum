@@ -260,13 +260,75 @@
         <div class="detail-progress mb-3" id="detailProgressTrack">
           <div class="detail-progress-fill" id="detailProgressBar"></div>
         </div>
-        <div id="lessonsList"></div>
 
-        <div class="detail-subsection-head mt-4">
-          <h5 class="mb-0">Tasks</h5>
-          <p class="text-muted small mb-0">Practice questions answered by an LLM tutor.</p>
+        <!-- Today's Mission Dashboard Card -->
+        <div id="todaysMissionCard" class="card mission-card mb-4 shadow-sm border-0">
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="mission-badge"><i class="bi bi-rocket-takeoff-fill me-1"></i> TODAY'S MISSION</span>
+                <span class="badge bg-light text-dark border" id="missionPhaseBadge">Phase 1: Foundation</span>
+                <span class="badge bg-pink-subtle text-pink" id="missionTopicBadge">Linux & OS Fundamentals</span>
+              </div>
+              <div class="text-muted small d-flex align-items-center gap-1">
+                <i class="bi bi-clock-history"></i> Estimated time: <strong id="missionEstimatedTime">45 minutes</strong>
+              </div>
+            </div>
+            <h4 class="mission-title mb-2" id="missionTitle">🐧 Linux — Processes & Virtual Filesystems (/proc)</h4>
+            <p class="mission-description text-muted mb-3" id="missionDescription">
+              Read the assigned architectural concepts, complete the hands-on practical exercises, and submit your monitoring implementation for Senior SRE Mentor review.
+            </p>
+            <div class="mission-steps d-flex flex-wrap gap-3 mb-3 text-muted small">
+              <div class="mission-step"><i class="bi bi-book text-pink me-1"></i> 1. Review Concepts</div>
+              <div class="mission-step"><i class="bi bi-terminal text-pink me-1"></i> 2. Complete Practical Lab</div>
+              <div class="mission-step"><i class="bi bi-pencil-square text-pink me-1"></i> 3. Submit Assignment</div>
+              <div class="mission-step"><i class="bi bi-stars text-pink me-1"></i> 4. Get SRE Mentor Feedback</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-pink px-4 fw-medium shadow-sm" id="startMissionBtn">
+                <i class="bi bi-play-circle-fill me-1"></i> Start Mission
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" id="skipMissionBtn" title="Jump to next item">
+                Next item <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
         </div>
-        <div id="tasksList" class="d-flex flex-column gap-2"></div>
+
+        <!-- Curriculum View Navigation Tabs -->
+        <ul class="nav nav-pills mb-4 sre-view-pills" id="detailViewNav" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="tabRoadmap" type="button">
+              <i class="bi bi-diagram-3-fill me-1"></i> SRE Roadmap Curriculum
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="tabProjects" type="button">
+              <i class="bi bi-briefcase-fill me-1"></i> Portfolio Projects
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="tabAllItems" type="button">
+              <i class="bi bi-list-columns me-1"></i> All Lessons & Tasks
+            </button>
+          </li>
+        </ul>
+
+        <!-- SRE Interactive Multi-Phase Roadmap Container -->
+        <div id="sreRoadmapContainer" class="sre-roadmap-wrap"></div>
+
+        <!-- SRE Capstone Projects Container -->
+        <div id="sreProjectsContainer" class="d-none"></div>
+
+        <!-- Classic Flat Lessons & Tasks View (Tab: All Items) -->
+        <div id="classicViewContainer" class="d-none">
+          <div id="lessonsList"></div>
+          <div class="detail-subsection-head mt-4">
+            <h5 class="mb-0">Tasks</h5>
+            <p class="text-muted small mb-0">Practice questions answered by an LLM tutor.</p>
+          </div>
+          <div id="tasksList" class="d-flex flex-column gap-2"></div>
+        </div>
       </section>
     </main>
 
@@ -635,41 +697,62 @@
     <div class="modal fade" id="taskRunnerModal" tabindex="-1">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="taskRunnerTitle">Task</h5>
+          <div class="modal-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-pink text-white"><i class="bi bi-mortarboard-fill me-1"></i> SRE Assignment</span>
+              <h5 class="modal-title mb-0" id="taskRunnerTitle">Task</h5>
+              <span id="taskRunnerStatusBadge" class="badge bg-secondary">NOT STARTED</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <!-- SRE Mentor Guidance Banner -->
+            <div class="sre-mentor-banner d-flex align-items-center gap-3 p-3 mb-3 rounded">
+              <div class="mentor-avatar-badge">
+                <i class="bi bi-stars"></i>
+              </div>
+              <div class="small">
+                <strong>Senior SRE Mentor:</strong> Submissions are evaluated for technical accuracy, system internals (<code>/proc</code>, signals, network packets), error handling, and reasoning. If revision is needed, you'll receive constructive hints to improve your solution.
+              </div>
+            </div>
+
             <div class="task-split">
               <div>
-                <div class="task-split-label">Question</div>
+                <div class="task-split-label"><i class="bi bi-question-circle me-1"></i> Problem & Specifications</div>
                 <div
                   id="taskRunnerQuestion"
                   class="markdown-body task-pane task-pane-question border rounded p-3 bg-body"
                 ></div>
               </div>
               <div>
-                <div class="task-split-label">Your answer</div>
+                <div class="task-split-label d-flex justify-content-between">
+                  <span><i class="bi bi-code-square me-1"></i> Your Solution & Explanation</span>
+                  <span class="text-muted small">Markdown, Code & GitHub Links Supported</span>
+                </div>
                 <textarea
                   id="taskRunnerAnswer"
-                  class="form-control task-pane task-pane-answer"
+                  class="form-control task-pane task-pane-answer font-monospace"
                   rows="14"
-                  placeholder="Write your answer here. You can use Markdown."
+                  placeholder="Paste your script / code and write your technical explanations here...&#10;&#10;```bash&#10;#!/bin/bash&#10;set -euo pipefail&#10;...&#10;```&#10;&#10;### Technical Explanation:&#10;1. How /proc was inspected...&#10;2. Why SIGTERM was used before SIGKILL...&#10;3. Systemd timer reliability considerations..."
                 ></textarea>
-                <div class="d-flex justify-content-end mt-2">
-                  <button type="button" class="btn btn-primary" id="taskRunnerSubmit">
-                    <i class="bi bi-send me-1"></i> Submit
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                  <span class="text-muted small"><i class="bi bi-shield-lock me-1"></i> Private submission</span>
+                  <button type="button" class="btn btn-pink" id="taskRunnerSubmit">
+                    <i class="bi bi-send me-1"></i> Submit for Mentor Review
                   </button>
                 </div>
               </div>
             </div>
             <div class="task-feedback-wrap mt-3">
-              <div class="task-feedback-head">
-                <strong>LLM feedback</strong>
-                <span id="taskRunnerSpinner" class="spinner-border spinner-border-sm text-primary d-none ms-2" role="status" aria-hidden="true"></span>
+              <div class="task-feedback-head d-flex align-items-center justify-content-between">
+                <div>
+                  <strong><i class="bi bi-stars text-pink me-1"></i> SRE Mentor Feedback</strong>
+                  <span id="taskRunnerSpinner" class="spinner-border spinner-border-sm text-pink d-none ms-2" role="status" aria-hidden="true"></span>
+                </div>
+                <div id="taskRunnerEvalBadge"></div>
               </div>
               <div id="taskRunnerFeedback" class="markdown-body task-pane task-feedback border rounded p-3 bg-body-tertiary">
-                <span class="text-muted">Submit your answer to receive feedback.</span>
+                <span class="text-muted">Submit your answer to receive detailed technical evaluation from your SRE mentor.</span>
               </div>
             </div>
             <div id="taskRunnerSubmissions" class="mt-3"></div>

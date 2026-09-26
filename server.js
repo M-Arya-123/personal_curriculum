@@ -343,15 +343,22 @@ function normalizeLesson(input) {
   if (!allowed.has(normalisedType)) normalisedType = 'text';
 
   return {
-    id: uuid(),
+    id: input.id || uuid(),
     title,
     type: normalisedType,
     resource: typeof resource === 'string' ? resource : '',
     notes,
     lessonNote,
     isCompleted: Boolean(input.isCompleted),
-    completeDate: input.isCompleted ? new Date().toISOString() : null,
-    createdAt: new Date().toISOString(),
+    completeDate: input.isCompleted ? (input.completeDate || new Date().toISOString()) : null,
+    createdAt: input.createdAt || new Date().toISOString(),
+    phaseId: input.phaseId || '',
+    phaseTitle: input.phaseTitle || '',
+    topicId: input.topicId || '',
+    topicTitle: input.topicTitle || '',
+    kind: input.kind || 'concept',
+    estimatedMinutes: typeof input.estimatedMinutes === 'number' ? input.estimatedMinutes : 30,
+    order: typeof input.order === 'number' ? input.order : 0,
   };
 }
 
@@ -514,33 +521,130 @@ function findTask(course, taskId) {
 }
 
 function normalizeTask(input) {
-  // Title is the only required user-facing field. The question and instruction
-  // can technically be empty, but in practice the instructor must fill them in
-  // for the task to be useful. We do not enforce that here so the API stays
-  // forgiving; the UI validates.
   const title = (input.title || 'Untitled task').toString().trim() || 'Untitled task';
   const question = (input.question || '').toString();
   const instruction = (input.instruction || '').toString();
   return {
-    id: uuid(),
+    id: input.id || uuid(),
     title,
     question,
     instruction,
-    createdAt: new Date().toISOString(),
-    submissions: [],
+    phaseId: input.phaseId || '',
+    phaseTitle: input.phaseTitle || '',
+    topicId: input.topicId || '',
+    topicTitle: input.topicTitle || '',
+    status: input.status || 'NOT STARTED',
+    createdAt: input.createdAt || new Date().toISOString(),
+    submissions: Array.isArray(input.submissions) ? input.submissions : [],
   };
 }
 
 function normalizeSubmission(input) {
-  // Truncate very long learner answers so a single submission can't bloat the
-  // course file. 200KB is far above any reasonable short answer and well under
-  // any practical model context window.
   let answer = (input && typeof input.answer === 'string') ? input.answer : '';
   if (answer.length > 200 * 1024) answer = answer.slice(0, 200 * 1024);
   return {
     id: uuid(),
     answer,
     createdAt: new Date().toISOString(),
+  };
+}
+
+// Built-in Senior SRE Mentor Evaluation Engine (used when GROQ_API_KEY is not configured or as fallback)
+function evaluateSRESubmission(task, submission) {
+  const answer = (submission.answer || '').trim();
+  const lowerAnswer = answer.toLowerCase();
+  
+  if (answer.length < 40) {
+    return {
+      status: 'NEEDS REVISION',
+      feedback: `## Evaluation: NEEDS REVISION ⚠️
+
+### 🎯 Executive Summary
+Your answer is too brief or incomplete. As a Site Reliability Engineer, detailed explanations and verifiable implementations are required to ensure production safety.
+
+### 🔍 What is Missing
+- The implementation / script or detailed steps were not provided.
+- Core technical reasoning explaining system internals (e.g. \`/proc\`, signals, timers, or error handling) was omitted.
+
+### 💡 Socratic Hint & Question
+What happens to your monitoring process if the filesystem becomes completely 100% full before the alert can be logged? How does using \`/proc\` or standard defensive bash flags (\`set -euo pipefail\`) protect against unintended script execution?
+
+### 🚀 Next Steps
+Review the problem statement and practical lab instructions. Draft your complete solution and resubmit for evaluation.`
+    };
+  }
+
+  let passCount = 0;
+  const strengths = [];
+  const gaps = [];
+
+  // Check 1: Script & Commands
+  if (lowerAnswer.includes('df') || lowerAnswer.includes('awk') || lowerAnswer.includes('bash') || lowerAnswer.includes('#!/bin/bash') || lowerAnswer.includes('python') || lowerAnswer.includes('curl') || lowerAnswer.includes('tcpdump')) {
+    passCount++;
+    strengths.push('Included practical command-line implementation or script logic.');
+  } else {
+    gaps.push('No concrete command implementation or script provided (e.g. using `df -Ph`, `awk`, or network utilities).');
+  }
+
+  // Check 2: Threshold, Metrics or Verification
+  if (lowerAnswer.includes('threshold') || lowerAnswer.includes('80') || lowerAnswer.includes('-gt') || lowerAnswer.includes('>') || lowerAnswer.includes('alert') || lowerAnswer.includes('status_code') || lowerAnswer.includes('syn')) {
+    passCount++;
+    strengths.push('Identified capacity/threshold metrics and alert trigger logic.');
+  } else {
+    gaps.push('Did not demonstrate explicit threshold comparison against capacity limits or protocol state checks.');
+  }
+
+  // Check 3: System Internals (/proc, signals, sockets, or timers)
+  const mentionsProc = lowerAnswer.includes('/proc') || lowerAnswer.includes('inode') || lowerAnswer.includes('fd') || lowerAnswer.includes('deleted') || lowerAnswer.includes('lsof');
+  const mentionsSignals = lowerAnswer.includes('sigterm') || lowerAnswer.includes('sigkill') || lowerAnswer.includes('kill -9') || lowerAnswer.includes('signal');
+  const mentionsScheduling = lowerAnswer.includes('systemd') || lowerAnswer.includes('timer') || lowerAnswer.includes('cron') || lowerAnswer.includes('journalctl');
+  const mentionsNetwork = lowerAnswer.includes('tcpdump') || lowerAnswer.includes('syn') || lowerAnswer.includes('dns') || lowerAnswer.includes('curl') || lowerAnswer.includes('timeout') || lowerAnswer.includes('servfail');
+
+  if (mentionsProc || mentionsSignals || mentionsScheduling || mentionsNetwork) {
+    passCount += 2;
+    strengths.push('Demonstrated solid understanding of operating system and networking internals.');
+  } else {
+    gaps.push('Theoretical questions regarding OS internals (/proc, SIGTERM vs SIGKILL, systemd timers, or TCP packet flow) were not fully addressed.');
+  }
+
+  // Check 4: SRE defensive thinking
+  if (lowerAnswer.includes('set -e') || lowerAnswer.includes('pipefail') || lowerAnswer.includes('exit') || lowerAnswer.includes('tmpfs') || lowerAnswer.includes('logger') || lowerAnswer.includes('timeout') || lowerAnswer.includes('exception')) {
+    passCount++;
+    strengths.push('Employed defensive SRE engineering practices (exit codes, virtual filesystem filtering, or timeouts).');
+  } else {
+    gaps.push('Consider defensive practices: filtering pseudo-filesystems (tmpfs/squashfs), trapping unexpected exits, or adding network timeouts.');
+  }
+
+  const isPass = passCount >= 3;
+  const status = isPass ? 'PASS' : 'NEEDS REVISION';
+
+  return {
+    status: status,
+    feedback: `## Evaluation: ${status === 'PASS' ? 'PASS ✅' : 'NEEDS REVISION ⚠️'}
+
+### 🎯 Executive Summary
+${isPass
+  ? 'Strong work! Your submission demonstrates good technical understanding of SRE principles, system utilities, and error-resilient engineering.'
+  : 'Good initial attempt, but critical production considerations and system explanations are missing before this can be approved for production.'}
+
+### 🔍 Technical Strengths
+${strengths.map(s => `- ${s}`).join('\n')}
+
+### ⚠️ Gaps & Edge Cases
+${gaps.length > 0 ? gaps.map(g => `- ${g}`).join('\n') : '- No critical gaps detected. Clean production-oriented mindset.'}
+
+### 💡 Socratic Hint & Question
+${isPass 
+  ? 'To push your skills further: In an incident where a deleted file is still consuming disk space because a process holds the open file descriptor, how would you safely truncate that file without restarting the service (`> /proc/<PID>/fd/<FD>`)?'
+  : 'Remember: In production, `kill -9` (`SIGKILL`) should never be your first choice. Why can a process not catch or handle `SIGKILL`, and what happens to in-flight data or database connections when it dies abruptly?'}
+
+### 🚀 Next Steps
+${isPass
+  ? 'Congratulations! You have met the requirements for this topic. Mark this topic complete and advance to the next topic in your SRE roadmap.'
+  : 'Refine your submission with the points highlighted above, then re-submit to receive updated mentor feedback.'}
+
+---
+*Evaluated by Senior SRE Mentor.*`
   };
 }
 
@@ -554,6 +658,43 @@ app.post('/api/courses/:id/tasks', (req, res) => {
   course.updatedAt = new Date().toISOString();
   writeCourse(course);
   res.status(201).json(task);
+});
+
+app.put('/api/courses/:id/tasks/:taskId', (req, res) => {
+  let course;
+  try { course = readCourse(req.params.id); }
+  catch (err) { return res.status(err.status || 500).json({ error: err.message }); }
+
+  const task = findTask(course, req.params.taskId);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+
+  const { title, question, instruction, status, topicId, phaseId } = req.body || {};
+  if (typeof title === 'string' && title.trim()) task.title = title.trim();
+  if (typeof question === 'string') task.question = question;
+  if (typeof instruction === 'string') task.instruction = instruction;
+  if (typeof status === 'string') task.status = status;
+  if (typeof topicId === 'string') task.topicId = topicId;
+  if (typeof phaseId === 'string') task.phaseId = phaseId;
+
+  course.updatedAt = new Date().toISOString();
+  writeCourse(course);
+  res.json(task);
+});
+
+app.patch('/api/courses/:id/tasks/:taskId/status', (req, res) => {
+  let course;
+  try { course = readCourse(req.params.id); }
+  catch (err) { return res.status(err.status || 500).json({ error: err.message }); }
+
+  const task = findTask(course, req.params.taskId);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+
+  const { status } = req.body || {};
+  if (status) task.status = String(status);
+
+  course.updatedAt = new Date().toISOString();
+  writeCourse(course);
+  res.json(task);
 });
 
 app.delete('/api/courses/:id/tasks/:taskId', (req, res) => {
@@ -570,10 +711,6 @@ app.delete('/api/courses/:id/tasks/:taskId', (req, res) => {
   res.json({ ok: true });
 });
 
-// Submit a learner's answer to a task. Calls Groq with the task's instruction
-// (system role) and the question + answer (user role), then stores the
-// model's feedback on the task as a new submission. Returns the saved
-// submission (with feedback) so the UI can render it immediately.
 app.post('/api/courses/:id/tasks/:taskId/submit', async (req, res) => {
   let course;
   try { course = readCourse(req.params.id); }
@@ -582,52 +719,58 @@ app.post('/api/courses/:id/tasks/:taskId/submit', async (req, res) => {
   const task = findTask(course, req.params.taskId);
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
-  const groq = getGroq();
-  if (!groq) {
-    return res.status(503).json({
-      error: 'GROQ_API_KEY is not configured on the server. Set it in .env and restart.',
-    });
-  }
-
   const submission = normalizeSubmission(req.body || {});
   if (!submission.answer.trim()) {
     return res.status(400).json({ error: 'Answer cannot be empty' });
   }
 
-  // Build the prompt. The instructor's instruction is the system message so
-  // it always wins over user content if the learner tries to inject
-  // instructions of their own. The user message carries the question and
-  // the learner's attempt, with clear delimiters so the model can find them.
+  const groq = getGroq();
+  let feedback = '';
+
   const systemMsg = (task.instruction && task.instruction.trim())
     ? task.instruction.trim()
-    : 'You are a helpful tutor. Read the learner\'s answer to the question and give concise, constructive feedback. Be kind, specific, and brief.';
+    : 'You are a Senior SRE Mentor evaluating a learner\'s technical work. Give detailed, constructive, and accurate feedback with high production standards.';
   const userMsg =
     `Question:\n${task.question || '(no question provided)'}\n\n` +
     `Learner's answer:\n${submission.answer}\n\n` +
     `Reply with feedback only.`;
 
-  let feedback = '';
-  try {
-    const completion = await groq.chat.completions.create({
-      model: GROQ_MODEL,
-      messages: [
-        { role: 'system', content: systemMsg },
-        { role: 'user', content: userMsg },
-      ],
-      temperature: 0.4,
-    });
-    feedback = (completion.choices && completion.choices[0] && completion.choices[0].message
-      && typeof completion.choices[0].message.content === 'string')
-      ? completion.choices[0].message.content.trim()
-      : '';
-    if (!feedback) feedback = '(The model returned an empty response.)';
-  } catch (err) {
-    // Surface a clean error to the client. The Groq SDK throws a single Error
-    // whose message usually includes the HTTP status (e.g. "401 ..." or
-    // "429 ...") and the human-readable reason. We pass it through.
-    const status = (err && err.status) ? err.status : 502;
-    return res.status(status).json({
-      error: 'Groq request failed: ' + ((err && err.message) ? err.message : String(err)),
+  if (groq) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: systemMsg },
+          { role: 'user', content: userMsg },
+        ],
+        temperature: 0.4,
+      });
+      feedback = (completion.choices && completion.choices[0] && completion.choices[0].message
+        && typeof completion.choices[0].message.content === 'string')
+        ? completion.choices[0].message.content.trim()
+        : '';
+    } catch (err) {
+      console.warn('Groq completion failed, using built-in SRE mentor engine:', err.message);
+    }
+  }
+
+  // Fallback to built-in SRE Mentor engine if Groq is not configured or failed
+  if (!feedback) {
+    const evalResult = evaluateSRESubmission(task, submission);
+    feedback = evalResult.feedback;
+  }
+
+  // Update status based on evaluation
+  const isPass = /evaluation:\s*pass|result:\s*pass|\[pass\]|pass\s*✅/i.test(feedback);
+  task.status = isPass ? 'COMPLETED' : 'NEEDS REVISION';
+
+  // If passed, mark corresponding lesson as completed if one exists
+  if (isPass && task.topicId) {
+    (course.lessons || []).forEach((l) => {
+      if (l.topicId === task.topicId && (l.kind === 'assignment' || l.title.toLowerCase().includes('assignment'))) {
+        l.isCompleted = true;
+        l.completeDate = new Date().toISOString();
+      }
     });
   }
 
@@ -636,7 +779,7 @@ app.post('/api/courses/:id/tasks/:taskId/submit', async (req, res) => {
   task.submissions.push(submission);
   course.updatedAt = new Date().toISOString();
   writeCourse(course);
-  res.status(201).json({ submission, taskId: task.id });
+  res.status(201).json({ submission, taskId: task.id, status: task.status });
 });
 
 // --- Sync the db/ folder to the remote (git add/commit/push) ---------------
