@@ -3,7 +3,7 @@
   "title": "Site Reliability Engineering (SRE) Roadmap",
   "description": "Complete Learning Path from Zero to Site Reliability Engineer based strictly on Santhosh Kumar Jampala's authoritative curriculum. Estimated Timeframe: 12–18 months (15–20 hours/week) covering 5 progressive Phases and all 15 Topics with hands-on practice, labs, assignments, and AI SRE Mentor review.",
   "createdAt": "2026-09-26T13:21:27.872325+00:00",
-  "updatedAt": "2026-09-26T13:21:27.872325+00:00",
+  "updatedAt": "2026-09-26T14:27:23.677Z",
   "authors": [
     {
       "authorName": "Santhosh Kumar Jampala",
@@ -34,24 +34,6 @@
   ],
   "lessons": [
     {
-      "id": "f0a00000-0001-4000-a000-000000000001",
-      "title": "Roadmap Orientation: SRE Principles, Reading List & Study Schedule",
-      "type": "markdown",
-      "resource": "https://medium.com/@santhoshjsh/sre-roadmap-for-beginners-4a183314c504",
-      "notes": "# SRE Roadmap for Beginners: Authoritative Overview\n\n**Title:** Complete Learning Path from Zero to Site Reliability Engineer  \n**Author:** Santhosh Kumar Jampala  \n**Estimated Timeframe:** 12–18 months (15–20 hours/week)\n\n---\n\n## 1. Understanding SRE & What SREs Do\n\n### What is Site Reliability Engineering?\nSite Reliability Engineering (SRE) is a discipline that applies software engineering principles to infrastructure and operations problems. SREs create scalable, automated, and highly reliable software systems.\n\n### Core Responsibilities of an SRE:\n* Monitor and maintain system reliability and uptime\n* Automate operational tasks to eliminate repetitive toil\n* Design and implement scalable cloud infrastructure\n* Lead incident response channels and conduct blameless post-mortems\n* Balance feature velocity with system stability using Error Budgets\n* Define and track Service Level Objectives (SLOs) and Indicators (SLIs)\n\n---\n\n## 2. Essential SRE Principles to Internalize\n1. **Embrace Risk:** 100% uptime is impossible and wasteful. Set realistic targets.\n2. **Service Level Objectives:** Define and measure what truly matters to users.\n3. **Eliminate Toil:** Automate repetitive manual operational tasks.\n4. **Monitoring & Alerting:** Know your systems' health through metrics, logs, and traces.\n5. **Capacity Planning:** Plan for traffic growth before outages happen.\n6. **Blameless Post-Mortems:** Learn from failures without pointing fingers.\n7. **Gradual Rollouts:** Reduce the blast radius of new changes with canaries.\n\n---\n\n## 3. Recommended Reading List\n\n### Essential Books (Free Online)\n* [Site Reliability Engineering: How Google Runs Production Systems](https://sre.google/sre-book/table-of-contents/) by Google\n* [The Site Reliability Workbook](https://sre.google/workbook/table-of-contents/) by Google\n* [Building Secure and Reliable Systems](https://sre.google/books/building-secure-reliable-systems/) by Google\n\n### Paid Books Worth Buying\n* *The Phoenix Project* by Gene Kim (DevOps transformation novel)\n* *Seeking SRE* edited by David N. Blank-Edelman\n* *Database Reliability Engineering* by Laine Campbell & Charity Majors\n\n---\n\n## 4. Certifications to Consider\n* **Foundational:** Linux Foundation Certified System Administrator (LFCS), AWS Certified Solutions Architect Associate (or GCP/Azure equivalent)\n* **Advanced:** Certified Kubernetes Administrator (CKA), Certified Kubernetes Application Developer (CKAD), HashiCorp Certified: Terraform Associate\n\n---\n\n## 5. Weekly Study Schedule Template\n* **Weekdays (2 hours/day):**\n  * 1 hour: Focused learning (courses, books, tutorials)\n  * 1 hour: Hands-on practice (labs, terminal, code, projects)\n* **Weekends (4–6 hours total):**\n  * Work on a larger project / lab\n  * Read SRE books or technical blogs\n  * Watch SREcon conference talks\n  * Practice system troubleshooting scenarios\n\n---\n\n## 6. Common Pitfalls to Avoid\n1. **Tutorial hell:** Build real projects, don't just passively watch videos.\n2. **Trying to learn everything at once:** Master Linux and networking fundamentals first.\n3. **Skipping Linux:** It is the bedrock of containers, cloud VMs, and Kubernetes.\n4. **Not documenting:** Keep engineering notes, runbooks, and write down findings.\n5. **Working in isolation:** Join SRE communities (Reddit r/sre, CNCF, Slack).\n6. **Ignoring soft skills:** Technical communication and incident leadership are critical.\n",
-      "lessonNote": "",
-      "isCompleted": false,
-      "completeDate": null,
-      "createdAt": "2026-09-26T13:21:27.872325+00:00",
-      "phaseId": "phase-1",
-      "phaseTitle": "Phase 1: Foundation (Months 1–3)",
-      "topicId": "p1-t1",
-      "topicTitle": "1. Linux Fundamentals",
-      "kind": "concept",
-      "estimatedMinutes": 30,
-      "order": 1
-    },
-    {
       "id": "f1a00001-0001-4000-a000-000000000001",
       "title": "1. Linux Fundamentals — Concepts & Core Architecture",
       "type": "markdown",
@@ -68,6 +50,24 @@
       "kind": "concept",
       "estimatedMinutes": 60,
       "order": 2
+    },
+    {
+      "id": "f0a00000-0001-4000-a000-000000000001",
+      "title": "Roadmap Orientation: SRE Principles, Reading List & Study Schedule",
+      "type": "markdown",
+      "resource": "https://medium.com/@santhoshjsh/sre-roadmap-for-beginners-4a183314c504",
+      "notes": "# SRE Roadmap for Beginners: Authoritative Overview\n\n**Title:** Complete Learning Path from Zero to Site Reliability Engineer  \n**Author:** Santhosh Kumar Jampala  \n**Estimated Timeframe:** 12–18 months (15–20 hours/week)\n\n---\n\n## 1. Understanding SRE & What SREs Do\n\n### What is Site Reliability Engineering?\nSite Reliability Engineering (SRE) is a discipline that applies software engineering principles to infrastructure and operations problems. SREs create scalable, automated, and highly reliable software systems.\n\n### Core Responsibilities of an SRE:\n* Monitor and maintain system reliability and uptime\n* Automate operational tasks to eliminate repetitive toil\n* Design and implement scalable cloud infrastructure\n* Lead incident response channels and conduct blameless post-mortems\n* Balance feature velocity with system stability using Error Budgets\n* Define and track Service Level Objectives (SLOs) and Indicators (SLIs)\n\n---\n\n## 2. Essential SRE Principles to Internalize\n1. **Embrace Risk:** 100% uptime is impossible and wasteful. Set realistic targets.\n2. **Service Level Objectives:** Define and measure what truly matters to users.\n3. **Eliminate Toil:** Automate repetitive manual operational tasks.\n4. **Monitoring & Alerting:** Know your systems' health through metrics, logs, and traces.\n5. **Capacity Planning:** Plan for traffic growth before outages happen.\n6. **Blameless Post-Mortems:** Learn from failures without pointing fingers.\n7. **Gradual Rollouts:** Reduce the blast radius of new changes with canaries.\n\n---\n\n## 3. Recommended Reading List\n\n### Essential Books (Free Online)\n* [Site Reliability Engineering: How Google Runs Production Systems](https://sre.google/sre-book/table-of-contents/) by Google\n* [The Site Reliability Workbook](https://sre.google/workbook/table-of-contents/) by Google\n* [Building Secure and Reliable Systems](https://sre.google/books/building-secure-reliable-systems/) by Google\n\n### Paid Books Worth Buying\n* *The Phoenix Project* by Gene Kim (DevOps transformation novel)\n* *Seeking SRE* edited by David N. Blank-Edelman\n* *Database Reliability Engineering* by Laine Campbell & Charity Majors\n\n---\n\n## 4. Certifications to Consider\n* **Foundational:** Linux Foundation Certified System Administrator (LFCS), AWS Certified Solutions Architect Associate (or GCP/Azure equivalent)\n* **Advanced:** Certified Kubernetes Administrator (CKA), Certified Kubernetes Application Developer (CKAD), HashiCorp Certified: Terraform Associate\n\n---\n\n## 5. Weekly Study Schedule Template\n* **Weekdays (2 hours/day):**\n  * 1 hour: Focused learning (courses, books, tutorials)\n  * 1 hour: Hands-on practice (labs, terminal, code, projects)\n* **Weekends (4–6 hours total):**\n  * Work on a larger project / lab\n  * Read SRE books or technical blogs\n  * Watch SREcon conference talks\n  * Practice system troubleshooting scenarios\n\n---\n\n## 6. Common Pitfalls to Avoid\n1. **Tutorial hell:** Build real projects, don't just passively watch videos.\n2. **Trying to learn everything at once:** Master Linux and networking fundamentals first.\n3. **Skipping Linux:** It is the bedrock of containers, cloud VMs, and Kubernetes.\n4. **Not documenting:** Keep engineering notes, runbooks, and write down findings.\n5. **Working in isolation:** Join SRE communities (Reddit r/sre, CNCF, Slack).\n6. **Ignoring soft skills:** Technical communication and incident leadership are critical.\n",
+      "lessonNote": "",
+      "isCompleted": false,
+      "completeDate": null,
+      "createdAt": "2026-09-26T13:21:27.872325+00:00",
+      "phaseId": "phase-1",
+      "phaseTitle": "Phase 1: Foundation (Months 1–3)",
+      "topicId": "p1-t1",
+      "topicTitle": "1. Linux Fundamentals",
+      "kind": "concept",
+      "estimatedMinutes": 30,
+      "order": 1
     },
     {
       "id": "f1a00001-0002-4000-a000-000000000001",
