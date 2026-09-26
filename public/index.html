@@ -1,791 +1,691 @@
 <!doctype html>
 <html lang="en" data-bs-theme="light">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open Course Builder</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.5.1/github-markdown.min.css"
-    />
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <!-- Top nav -->
-    <nav class="navbar bg-body-tertiary border-bottom sticky-top">
-      <div class="container">
-        <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="#">
-          <i class="bi bi-mortarboard-fill text-primary"></i>
-          <span>Open Course Builder</span>
-        </a>
-        <a class="btn btn-outline-primary btn-sm mx-auto" id="discoverCoursesBtn" href="https://rayan2162.github.io/ocb-ohara/" target="_blank" rel="noopener noreferrer" title="Browse community-built courses on the Ohara gallery">
-          <i class="bi bi-compass me-1"></i> Discover Courses
-        </a>
-        <div class="d-flex align-items-center gap-2">
-          <span id="courseCount" class="text-muted small"></span>
-          <button class="btn btn-primary btn-sm ocb-action-btn" id="newCourseBtn">
-            <i class="bi bi-plus-lg me-1"></i> New Course
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal Curriculum</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.5.1/github-markdown.min.css" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <!-- Top nav -->
+  <nav class="navbar bg-body-tertiary border-bottom sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="#">
+        <i class="bi bi-mortarboard-fill text-primary"></i>
+        <span>Personal Curriculum</span>
+      </a>
+      <a class="btn btn-outline-primary btn-sm mx-auto" id="discoverCoursesBtn"
+        href="https://rayan2162.github.io/ocb-ohara/" target="_blank" rel="noopener noreferrer"
+        title="Browse community-built courses on the Ohara gallery">
+        <i class="bi bi-compass me-1"></i> Discover Courses
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <span id="courseCount" class="text-muted small"></span>
+        <button class="btn btn-primary btn-sm ocb-action-btn" id="newCourseBtn">
+          <i class="bi bi-plus-lg me-1"></i> New Course
+        </button>
+        <button class="btn btn-outline-secondary btn-sm ocb-action-btn" id="importCourseBtn"
+          title="Import a course JSON file or paste one from someone else">
+          <i class="bi bi-upload"></i>
+          <span class="d-none d-md-inline ms-1">Import</span>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="toggleActionsBtn"
+          title="Hide create / edit / delete actions" aria-pressed="false">
+          <i class="bi bi-eye"></i>
+          <span class="d-none d-md-inline ms-1">View mode</span>
+        </button>
+        <button class="btn btn-outline-primary btn-sm" id="syncProgressBtn"
+          title="Commit and push the db/ folder to the remote">
+          <i class="bi bi-cloud-arrow-up"></i>
+          <span class="d-none d-md-inline ms-1">Sync progress</span>
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm dropdown-toggle ocb-action-btn" type="button"
+            id="themeDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Change color theme">
+            <i id="themeDropdownIcon" class="bi bi-circle-half me-1"></i>
+            <span id="activeThemeLabel">Theme</span>
           </button>
-          <button class="btn btn-outline-secondary btn-sm ocb-action-btn" id="importCourseBtn" title="Import a course JSON file or paste one from someone else">
-            <i class="bi bi-upload"></i>
-            <span class="d-none d-md-inline ms-1">Import</span>
+          <ul class="dropdown-menu dropdown-menu-end" id="themeDropdownMenu" aria-labelledby="themeDropdownBtn">
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" type="button" data-theme-choice="system">
+                <i class="bi bi-circle-half"></i>
+                <span class="flex-grow-1">System</span>
+                <i class="bi bi-check2 d-none" data-theme-check="system"></i>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" type="button" data-theme-choice="light">
+                <i class="bi bi-sun-fill"></i>
+                <span class="flex-grow-1">Light</span>
+                <i class="bi bi-check2 d-none" data-theme-check="light"></i>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" type="button" data-theme-choice="dark">
+                <i class="bi bi-moon-stars-fill"></i>
+                <span class="flex-grow-1">Dark</span>
+                <i class="bi bi-check2 d-none" data-theme-check="dark"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="position-relative">
+          <button class="btn btn-outline-warning btn-sm" id="streaksBtn" aria-expanded="false"
+            title="View streak heatmap">
+            <i class="bi bi-fire"></i>
+            <span class="d-none d-md-inline ms-1">Streaks</span>
           </button>
-          <button
-            class="btn btn-outline-secondary btn-sm"
-            id="toggleActionsBtn"
-            title="Hide create / edit / delete actions"
-            aria-pressed="false"
-          >
-            <i class="bi bi-eye"></i>
-            <span class="d-none d-md-inline ms-1">View mode</span>
-          </button>
-          <button
-            class="btn btn-outline-primary btn-sm"
-            id="syncProgressBtn"
-            title="Commit and push the db/ folder to the remote"
-          >
-            <i class="bi bi-cloud-arrow-up"></i>
-            <span class="d-none d-md-inline ms-1">Sync progress</span>
-          </button>
-          <div class="dropdown">
-            <button
-              class="btn btn-outline-secondary btn-sm dropdown-toggle ocb-action-btn"
-              type="button"
-              id="themeDropdownBtn"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              title="Change color theme"
-            >
-              <i id="themeDropdownIcon" class="bi bi-circle-half me-1"></i>
-              <span id="activeThemeLabel">Theme</span>
-            </button>
-            <ul
-              class="dropdown-menu dropdown-menu-end"
-              id="themeDropdownMenu"
-              aria-labelledby="themeDropdownBtn"
-            >
-              <li>
-                <button
-                  class="dropdown-item d-flex align-items-center gap-2"
-                  type="button"
-                  data-theme-choice="system"
-                >
-                  <i class="bi bi-circle-half"></i>
-                  <span class="flex-grow-1">System</span>
-                  <i class="bi bi-check2 d-none" data-theme-check="system"></i>
-                </button>
-              </li>
-              <li>
-                <button
-                  class="dropdown-item d-flex align-items-center gap-2"
-                  type="button"
-                  data-theme-choice="light"
-                >
-                  <i class="bi bi-sun-fill"></i>
-                  <span class="flex-grow-1">Light</span>
-                  <i class="bi bi-check2 d-none" data-theme-check="light"></i>
-                </button>
-              </li>
-              <li>
-                <button
-                  class="dropdown-item d-flex align-items-center gap-2"
-                  type="button"
-                  data-theme-choice="dark"
-                >
-                  <i class="bi bi-moon-stars-fill"></i>
-                  <span class="flex-grow-1">Dark</span>
-                  <i class="bi bi-check2 d-none" data-theme-check="dark"></i>
-                </button>
-              </li>
-            </ul>
-          </div>
-          <div class="position-relative">
-            <button
-              class="btn btn-outline-warning btn-sm"
-              id="streaksBtn"
-              aria-expanded="false"
-              title="View streak heatmap"
-            >
-              <i class="bi bi-fire"></i>
-              <span class="d-none d-md-inline ms-1">Streaks</span>
-            </button>
-            <div id="streaksPanel" class="streaks-panel shadow d-none" role="dialog" aria-label="Streak heatmap">
-              <div class="streaks-head">
-                <div>
-                  <div class="streaks-title">Activity</div>
-                  <div class="streaks-subtitle text-muted small">Lessons completed over time</div>
-                </div>
-                <button type="button" class="btn-close" id="streaksCloseBtn" aria-label="Close"></button>
+          <div id="streaksPanel" class="streaks-panel shadow d-none" role="dialog" aria-label="Streak heatmap">
+            <div class="streaks-head">
+              <div>
+                <div class="streaks-title">Activity</div>
+                <div class="streaks-subtitle text-muted small">Lessons completed over time</div>
               </div>
-              <div class="streaks-stats">
-                <div class="streaks-stat">
-                  <div class="streaks-stat-value" id="streaksCurrent">0</div>
-                  <div class="streaks-stat-label">Current streak</div>
+              <button type="button" class="btn-close" id="streaksCloseBtn" aria-label="Close"></button>
+            </div>
+            <div class="streaks-stats">
+              <div class="streaks-stat">
+                <div class="streaks-stat-value" id="streaksCurrent">0</div>
+                <div class="streaks-stat-label">Current streak</div>
+              </div>
+              <div class="streaks-stat">
+                <div class="streaks-stat-value" id="streaksLongest">0</div>
+                <div class="streaks-stat-label">Longest streak</div>
+              </div>
+              <div class="streaks-stat">
+                <div class="streaks-stat-value" id="streaksTotal">0</div>
+                <div class="streaks-stat-label">Total completions</div>
+              </div>
+              <div class="streaks-stat">
+                <div class="streaks-stat-value" id="streaksActiveDays">0</div>
+                <div class="streaks-stat-label">Active days</div>
+              </div>
+            </div>
+            <div class="streaks-heatmap-wrap">
+              <div class="streaks-controls">
+                <div class="streaks-controls-group">
+                  <label class="streaks-control-label" for="streaksMonthSel">Month</label>
+                  <select id="streaksMonthSel" class="form-select form-select-sm streaks-select"></select>
                 </div>
-                <div class="streaks-stat">
-                  <div class="streaks-stat-value" id="streaksLongest">0</div>
-                  <div class="streaks-stat-label">Longest streak</div>
-                </div>
-                <div class="streaks-stat">
-                  <div class="streaks-stat-value" id="streaksTotal">0</div>
-                  <div class="streaks-stat-label">Total completions</div>
-                </div>
-                <div class="streaks-stat">
-                  <div class="streaks-stat-value" id="streaksActiveDays">0</div>
-                  <div class="streaks-stat-label">Active days</div>
+                <div class="streaks-controls-group">
+                  <label class="streaks-control-label" for="streaksYearSel">Year</label>
+                  <select id="streaksYearSel" class="form-select form-select-sm streaks-select"></select>
                 </div>
               </div>
-              <div class="streaks-heatmap-wrap">
-                <div class="streaks-controls">
-                  <div class="streaks-controls-group">
-                    <label class="streaks-control-label" for="streaksMonthSel">Month</label>
-                    <select id="streaksMonthSel" class="form-select form-select-sm streaks-select"></select>
-                  </div>
-                  <div class="streaks-controls-group">
-                    <label class="streaks-control-label" for="streaksYearSel">Year</label>
-                    <select id="streaksYearSel" class="form-select form-select-sm streaks-select"></select>
-                  </div>
+              <div class="streaks-month-view">
+                <div class="streaks-month-dow">
+                  <span>Sun</span><span>Mon</span><span>Tue</span>
+                  <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
                 </div>
-                <div class="streaks-month-view">
-                  <div class="streaks-month-dow">
-                    <span>Sun</span><span>Mon</span><span>Tue</span>
-                    <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                  </div>
-                  <div class="streaks-month-grid" id="streaksGrid"></div>
-                </div>
+                <div class="streaks-month-grid" id="streaksGrid"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <main class="container py-4">
-      <!-- Course list view -->
-      <section id="coursesView">
-        <div id="emptyState" class="empty-state text-center py-5 d-none">
-          <div class="empty-state-icon">
-            <i class="bi bi-mortarboard-fill"></i>
-          </div>
-          <h3 class="mt-3 mb-2">No courses yet</h3>
-          <p class="text-muted mb-4">Create your first course to start collecting learning resources in one place.</p>
-          <button class="btn btn-primary btn-lg ocb-action-btn" id="emptyCreateBtn">
-            <i class="bi bi-plus-lg me-1"></i> Create your first course
+  <main class="container py-4">
+    <!-- Course list view -->
+    <section id="coursesView">
+      <div id="emptyState" class="empty-state text-center py-5 d-none">
+        <div class="empty-state-icon">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <h3 class="mt-3 mb-2">No courses yet</h3>
+        <p class="text-muted mb-4">Create your first course to start collecting learning resources in one place.</p>
+        <button class="btn btn-primary btn-lg ocb-action-btn" id="emptyCreateBtn">
+          <i class="bi bi-plus-lg me-1"></i> Create your first course
+        </button>
+      </div>
+      <div id="coursesList" class="row g-3"></div>
+    </section>
+
+    <!-- Course detail view -->
+    <section id="courseDetailView" class="d-none">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <button class="btn btn-link p-0 text-decoration-none" id="backToCourses">
+            <i class="bi bi-arrow-left me-1"></i> All courses
+          </button>
+          <h2 class="mb-0 mt-1" id="detailTitle"></h2>
+          <p class="text-muted mb-0" id="detailMeta"></p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary ocb-action-btn" id="exportCourseBtn"
+            title="Download this course as a JSON file you can share">
+            <i class="bi bi-download"></i> Export
+          </button>
+          <button class="btn btn-outline-secondary ocb-action-btn" id="editCourseBtn">
+            <i class="bi bi-pencil"></i> Edit
+          </button>
+          <button class="btn btn-outline-danger ocb-action-btn" id="deleteCourseBtn">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+          <button class="btn btn-primary ocb-action-btn" id="addLessonBtn">
+            <i class="bi bi-plus-lg"></i> Add lesson
+          </button>
+          <button class="btn btn-outline-primary ocb-action-btn" id="addTaskBtn">
+            <i class="bi bi-plus-lg"></i> Add task
           </button>
         </div>
-        <div id="coursesList" class="row g-3"></div>
-      </section>
+      </div>
+      <p class="text-muted" id="detailDescription"></p>
+      <div class="detail-meta-blocks">
+        <div class="detail-meta-block d-none" id="detailAuthorsBlock">
+          <h6 class="detail-meta-label">Authors</h6>
+          <div id="detailAuthors"></div>
+        </div>
+        <div class="detail-meta-block d-none" id="detailTagsBlock">
+          <h6 class="detail-meta-label">Tags</h6>
+          <div id="detailTags"></div>
+        </div>
+        <div class="detail-meta-block d-none" id="detailLanguagesBlock">
+          <h6 class="detail-meta-label">Course language(s)</h6>
+          <div id="detailLanguages"></div>
+        </div>
+      </div>
+      <div class="detail-stats" id="detailStats">
+        <div class="detail-stat detail-stat-total">
+          <div class="detail-stat-icon"><i class="bi bi-collection"></i></div>
+          <div class="detail-stat-body">
+            <div class="detail-stat-value" id="detailStatTotal">0</div>
+            <div class="detail-stat-label">Total lessons</div>
+          </div>
+        </div>
+        <div class="detail-stat detail-stat-done">
+          <div class="detail-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="detail-stat-body">
+            <div class="detail-stat-value" id="detailStatDone">0</div>
+            <div class="detail-stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="detail-stat detail-stat-remaining">
+          <div class="detail-stat-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div class="detail-stat-body">
+            <div class="detail-stat-value" id="detailStatRemaining">0</div>
+            <div class="detail-stat-label">Remaining</div>
+          </div>
+        </div>
+        <div class="detail-stat detail-stat-progress">
+          <div class="detail-stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="detail-stat-body">
+            <div class="detail-stat-value" id="detailStatPct">0%</div>
+            <div class="detail-stat-label">Progress</div>
+          </div>
+        </div>
+      </div>
+      <div class="detail-progress mb-3" id="detailProgressTrack">
+        <div class="detail-progress-fill" id="detailProgressBar"></div>
+      </div>
 
-      <!-- Course detail view -->
-      <section id="courseDetailView" class="d-none">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div>
-            <button class="btn btn-link p-0 text-decoration-none" id="backToCourses">
-              <i class="bi bi-arrow-left me-1"></i> All courses
-            </button>
-            <h2 class="mb-0 mt-1" id="detailTitle"></h2>
-            <p class="text-muted mb-0" id="detailMeta"></p>
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary ocb-action-btn" id="exportCourseBtn" title="Download this course as a JSON file you can share">
-              <i class="bi bi-download"></i> Export
-            </button>
-            <button class="btn btn-outline-secondary ocb-action-btn" id="editCourseBtn">
-              <i class="bi bi-pencil"></i> Edit
-            </button>
-            <button class="btn btn-outline-danger ocb-action-btn" id="deleteCourseBtn">
-              <i class="bi bi-trash"></i> Delete
-            </button>
-            <button class="btn btn-primary ocb-action-btn" id="addLessonBtn">
-              <i class="bi bi-plus-lg"></i> Add lesson
-            </button>
-            <button class="btn btn-outline-primary ocb-action-btn" id="addTaskBtn">
-              <i class="bi bi-plus-lg"></i> Add task
-            </button>
-          </div>
-        </div>
-        <p class="text-muted" id="detailDescription"></p>
-        <div class="detail-meta-blocks">
-          <div class="detail-meta-block d-none" id="detailAuthorsBlock">
-            <h6 class="detail-meta-label">Authors</h6>
-            <div id="detailAuthors"></div>
-          </div>
-          <div class="detail-meta-block d-none" id="detailTagsBlock">
-            <h6 class="detail-meta-label">Tags</h6>
-            <div id="detailTags"></div>
-          </div>
-          <div class="detail-meta-block d-none" id="detailLanguagesBlock">
-            <h6 class="detail-meta-label">Course language(s)</h6>
-            <div id="detailLanguages"></div>
-          </div>
-        </div>
-        <div class="detail-stats" id="detailStats">
-          <div class="detail-stat detail-stat-total">
-            <div class="detail-stat-icon"><i class="bi bi-collection"></i></div>
-            <div class="detail-stat-body">
-              <div class="detail-stat-value" id="detailStatTotal">0</div>
-              <div class="detail-stat-label">Total lessons</div>
-            </div>
-          </div>
-          <div class="detail-stat detail-stat-done">
-            <div class="detail-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
-            <div class="detail-stat-body">
-              <div class="detail-stat-value" id="detailStatDone">0</div>
-              <div class="detail-stat-label">Completed</div>
-            </div>
-          </div>
-          <div class="detail-stat detail-stat-remaining">
-            <div class="detail-stat-icon"><i class="bi bi-hourglass-split"></i></div>
-            <div class="detail-stat-body">
-              <div class="detail-stat-value" id="detailStatRemaining">0</div>
-              <div class="detail-stat-label">Remaining</div>
-            </div>
-          </div>
-          <div class="detail-stat detail-stat-progress">
-            <div class="detail-stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
-            <div class="detail-stat-body">
-              <div class="detail-stat-value" id="detailStatPct">0%</div>
-              <div class="detail-stat-label">Progress</div>
-            </div>
-          </div>
-        </div>
-        <div class="detail-progress mb-3" id="detailProgressTrack">
-          <div class="detail-progress-fill" id="detailProgressBar"></div>
-        </div>
-
-        <!-- Today's Mission Dashboard Card -->
-        <div id="todaysMissionCard" class="card mission-card mb-4 shadow-sm border-0">
-          <div class="card-body p-4">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-              <div class="d-flex align-items-center gap-2">
-                <span class="mission-badge"><i class="bi bi-rocket-takeoff-fill me-1"></i> TODAY'S MISSION</span>
-                <span class="badge bg-light text-dark border" id="missionPhaseBadge">Phase 1: Foundation</span>
-                <span class="badge bg-pink-subtle text-pink" id="missionTopicBadge">Linux & OS Fundamentals</span>
-              </div>
-              <div class="text-muted small d-flex align-items-center gap-1">
-                <i class="bi bi-clock-history"></i> Estimated time: <strong id="missionEstimatedTime">45 minutes</strong>
-              </div>
-            </div>
-            <h4 class="mission-title mb-2" id="missionTitle">🐧 Linux — Processes & Virtual Filesystems (/proc)</h4>
-            <p class="mission-description text-muted mb-3" id="missionDescription">
-              Read the assigned architectural concepts, complete the hands-on practical exercises, and submit your monitoring implementation for Senior SRE Mentor review.
-            </p>
-            <div class="mission-steps d-flex flex-wrap gap-3 mb-3 text-muted small">
-              <div class="mission-step"><i class="bi bi-book text-pink me-1"></i> 1. Review Concepts</div>
-              <div class="mission-step"><i class="bi bi-terminal text-pink me-1"></i> 2. Complete Practical Lab</div>
-              <div class="mission-step"><i class="bi bi-pencil-square text-pink me-1"></i> 3. Submit Assignment</div>
-              <div class="mission-step"><i class="bi bi-stars text-pink me-1"></i> 4. Get SRE Mentor Feedback</div>
-            </div>
+      <!-- Today's Mission Dashboard Card -->
+      <div id="todaysMissionCard" class="card mission-card mb-4 shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
             <div class="d-flex align-items-center gap-2">
-              <button class="btn btn-pink px-4 fw-medium shadow-sm" id="startMissionBtn">
-                <i class="bi bi-play-circle-fill me-1"></i> Start Mission
-              </button>
-              <button class="btn btn-outline-secondary btn-sm" id="skipMissionBtn" title="Jump to next item">
-                Next item <i class="bi bi-chevron-right"></i>
-              </button>
+              <span class="mission-badge"><i class="bi bi-rocket-takeoff-fill me-1"></i> TODAY'S MISSION</span>
+              <span class="badge bg-light text-dark border" id="missionPhaseBadge">Phase 1: Foundation</span>
+              <span class="badge bg-pink-subtle text-pink" id="missionTopicBadge">Linux & OS Fundamentals</span>
+            </div>
+            <div class="text-muted small d-flex align-items-center gap-1">
+              <i class="bi bi-clock-history"></i> Estimated time: <strong id="missionEstimatedTime">45 minutes</strong>
             </div>
           </div>
-        </div>
-
-        <!-- Curriculum View Navigation Tabs -->
-        <ul class="nav nav-pills mb-4 sre-view-pills" id="detailViewNav" role="tablist">
-          <li class="nav-item">
-            <button class="nav-link active" id="tabRoadmap" type="button">
-              <i class="bi bi-diagram-3-fill me-1"></i> SRE Roadmap Curriculum
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" id="tabGuide" type="button">
-              <i class="bi bi-compass-fill me-1"></i> Principles & Study Guide
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" id="tabProjects" type="button">
-              <i class="bi bi-briefcase-fill me-1"></i> Portfolio Projects
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" id="tabAllItems" type="button">
-              <i class="bi bi-list-columns me-1"></i> All Lessons & Tasks
-            </button>
-          </li>
-        </ul>
-
-        <!-- SRE Interactive Multi-Phase Roadmap Container -->
-        <div id="sreRoadmapContainer" class="sre-roadmap-wrap"></div>
-
-        <!-- SRE Principles & Study Guide Container -->
-        <div id="sreGuideContainer" class="d-none"></div>
-
-        <!-- SRE Capstone Projects Container -->
-        <div id="sreProjectsContainer" class="d-none"></div>
-
-        <!-- Classic Flat Lessons & Tasks View (Tab: All Items) -->
-        <div id="classicViewContainer" class="d-none">
-          <div id="lessonsList"></div>
-          <div class="detail-subsection-head mt-4">
-            <h5 class="mb-0">Tasks</h5>
-            <p class="text-muted small mb-0">Practice questions answered by an LLM tutor.</p>
+          <h4 class="mission-title mb-2" id="missionTitle">🐧 Linux — Processes & Virtual Filesystems (/proc)</h4>
+          <p class="mission-description text-muted mb-3" id="missionDescription">
+            Read the assigned architectural concepts, complete the hands-on practical exercises, and submit your
+            monitoring implementation for Senior SRE Mentor review.
+          </p>
+          <div class="mission-steps d-flex flex-wrap gap-3 mb-3 text-muted small">
+            <div class="mission-step"><i class="bi bi-book text-pink me-1"></i> 1. Review Concepts</div>
+            <div class="mission-step"><i class="bi bi-terminal text-pink me-1"></i> 2. Complete Practical Lab</div>
+            <div class="mission-step"><i class="bi bi-pencil-square text-pink me-1"></i> 3. Submit Assignment</div>
+            <div class="mission-step"><i class="bi bi-stars text-pink me-1"></i> 4. Get SRE Mentor Feedback</div>
           </div>
-          <div id="tasksList" class="d-flex flex-column gap-2"></div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Create / Edit Course Modal -->
-    <div class="modal fade" id="courseModal" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="courseModalTitle">New course</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="courseForm">
-              <div class="mb-3">
-                <label class="form-label">Course title</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="courseTitleInput"
-                  required
-                  maxlength="120"
-                  placeholder="e.g. Learn Web Development"
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Description (optional)</label>
-                <textarea
-                  class="form-control"
-                  id="courseDescInput"
-                  rows="2"
-                  maxlength="500"
-                  placeholder="Short description of what this course covers"
-                ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <label class="form-label mb-0">Authors <span class="text-muted small">(optional)</span></label>
-                  <button type="button" class="btn btn-sm btn-outline-primary ocb-action-btn" id="addAuthorRowBtn">
-                    <i class="bi bi-plus"></i> Add author
-                  </button>
-                </div>
-                <div class="text-muted small mb-2">Each author can have an optional link (LinkedIn, portfolio, X, etc.).</div>
-                <div id="courseFormAuthors"></div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Tags <span class="text-muted small">(optional, press Enter to add)</span></label>
-                <div class="ocb-chip-input-wrap">
-                  <div id="courseFormTags" class="ocb-chip-list" aria-label="Course tags"></div>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="courseTagsInput"
-                    placeholder="e.g. javascript, frontend, beginner"
-                    maxlength="40"
-                    autocomplete="off"
-                  />
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Course language(s) <span class="text-muted small">(optional, press Enter to add)</span></label>
-                <div class="ocb-chip-input-wrap">
-                  <div id="courseFormLanguages" class="ocb-chip-list" aria-label="Course languages"></div>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="courseLanguagesInput"
-                    placeholder="e.g. English, বাংলা, Español"
-                    maxlength="40"
-                    autocomplete="off"
-                  />
-                </div>
-              </div>
-
-              <p class="text-muted small mb-0">
-                <i class="bi bi-info-circle me-1"></i>
-                You can add lessons after the course is created — use the
-                <strong>Add lesson</strong> button on the course page.
-              </p>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="saveCourseBtn">Create course</button>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-pink px-4 fw-medium shadow-sm" id="startMissionBtn">
+              <i class="bi bi-play-circle-fill me-1"></i> Start Mission
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="skipMissionBtn" title="Jump to next item">
+              Next item <i class="bi bi-chevron-right"></i>
+            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Add / Edit Lesson Modal -->
-    <div class="modal fade" id="lessonModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="lessonModalTitle">Add lesson</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="lessonForm">
-              <div class="mb-3">
-                <label class="form-label">Lesson title</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="lessonTitleInput"
-                  required
-                  maxlength="160"
-                  placeholder="e.g. Introduction to Flexbox"
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Resource</label>
-                <ul class="nav nav-pills nav-sm mb-2" id="resourceTabs">
-                  <li class="nav-item">
-                    <button class="nav-link active" data-tab="link" type="button">Link</button>
-                  </li>
-                  <li class="nav-item">
-                    <button class="nav-link" data-tab="note" type="button">Note</button>
-                  </li>
-                  <li class="nav-item">
-                    <button class="nav-link" data-tab="markdown" type="button">Markdown</button>
-                  </li>
-                </ul>
+      <!-- Curriculum View Navigation Tabs -->
+      <ul class="nav nav-pills mb-4 sre-view-pills" id="detailViewNav" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" id="tabRoadmap" type="button">
+            <i class="bi bi-diagram-3-fill me-1"></i> SRE Roadmap Curriculum
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="tabGuide" type="button">
+            <i class="bi bi-compass-fill me-1"></i> Principles & Study Guide
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="tabProjects" type="button">
+            <i class="bi bi-briefcase-fill me-1"></i> Portfolio Projects
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="tabAllItems" type="button">
+            <i class="bi bi-list-columns me-1"></i> All Lessons & Tasks
+          </button>
+        </li>
+      </ul>
 
-                <div class="tab-pane" data-pane="link">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="resourceLinkInput"
-                    placeholder="https://example.com/article"
-                  />
-                  <div class="form-text">
-                    Paste any <strong>URL</strong> (article, YouTube, website, etc.).
-                  </div>
-                </div>
+      <!-- SRE Interactive Multi-Phase Roadmap Container -->
+      <div id="sreRoadmapContainer" class="sre-roadmap-wrap"></div>
 
+      <!-- SRE Principles & Study Guide Container -->
+      <div id="sreGuideContainer" class="d-none"></div>
 
+      <!-- SRE Capstone Projects Container -->
+      <div id="sreProjectsContainer" class="d-none"></div>
 
-                <div class="tab-pane d-none" data-pane="note">
-                  <textarea
-                    class="form-control"
-                    id="resourceNoteInput"
-                    rows="5"
-                    placeholder="Write your note here..."
-                  ></textarea>
-                </div>
-
-                <div class="tab-pane d-none" data-pane="markdown">
-                  <textarea
-                    class="form-control font-monospace"
-                    id="resourceMarkdownInput"
-                    rows="8"
-                    placeholder="# Heading&#10;&#10;Some **bold** and *italic* text.&#10;&#10;- list item&#10;```js&#10;console.log('code');&#10;```&#10;&#10;[a link](https://example.com)"
-                  ></textarea>
-                  <div class="form-text">
-                    Write GitHub-flavored markdown. Headers, lists, code blocks, links, and images all render in the preview.
-                  </div>
-                </div>
-              </div>
-              <div class="mb-3" id="lessonNotesSection">
-                <div>
-                  <label class="form-label mb-0">Notes (optional)</label>
-                </div>
-                <textarea
-                  class="form-control mt-2"
-                  id="lessonNotesInput"
-                  rows="3"
-                  placeholder="Your own thoughts or summary"
-                ></textarea>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="saveLessonBtn">Save lesson</button>
-          </div>
+      <!-- Classic Flat Lessons & Tasks View (Tab: All Items) -->
+      <div id="classicViewContainer" class="d-none">
+        <div id="lessonsList"></div>
+        <div class="detail-subsection-head mt-4">
+          <h5 class="mb-0">Tasks</h5>
+          <p class="text-muted small mb-0">Practice questions answered by an LLM tutor.</p>
         </div>
+        <div id="tasksList" class="d-flex flex-column gap-2"></div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <!-- Resource preview modal -->
-    <div class="modal fade" id="previewModal" tabindex="-1">
-      <div class="modal-dialog modal-xl modal-dialog-centered preview-modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title me-2" id="previewTitle">Preview</h5>
-            <a
-              type="button"
-              class="btn btn-sm btn-outline-secondary me-2 d-none"
-              id="previewOpenExternalBtn"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Open this resource in a new tab"
-            >
-              <i class="bi bi-box-arrow-up-right me-1"></i> Open in new tab
-            </a>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body p-0 preview-modal-body" id="previewModalBody">
-            <div class="preview-content" id="previewBody" style="min-height: 300px;">
-              <div class="text-center text-white-50 py-5">Loading...</div>
-            </div>
-            <aside class="preview-note-pane" id="previewNotePane" aria-label="Lesson note">
-              <div class="preview-note-head">
-                <div class="preview-note-head-text">
-                  <i class="bi bi-journal-text me-1"></i>
-                  <strong>My note</strong>
-                </div>
-                <div class="preview-note-toggle btn-group btn-group-sm" role="group" aria-label="Toggle between edit and view">
-                  <button type="button" class="btn btn-outline-secondary active" id="previewNoteEditBtn" data-mode="edit">
-                    <i class="bi bi-pencil"></i> Edit
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary" id="previewNoteViewBtn" data-mode="view">
-                    <i class="bi bi-eye"></i> View
-                  </button>
-                </div>
-              </div>
-              <div class="preview-note-edit" id="previewNoteEditWrap">
-                <textarea
-                  id="previewNoteInput"
-                  class="form-control preview-note-input"
-                  placeholder="# Heading&#10;&#10;Write your learning notes in **markdown**...&#10;&#10;- bullet&#10;- [link](https://example.com)&#10;```js&#10;console.log('hi');&#10;```"
-                  spellcheck="false"
-                ></textarea>
-                <div class="preview-note-status small text-muted" id="previewNoteStatus" aria-live="polite">
-                  <i class="bi bi-cloud-check"></i> Saved
-                </div>
-              </div>
-              <div class="preview-note-view d-none" id="previewNoteViewWrap">
-                <div class="preview-markdown preview-note-rendered" id="previewNoteRendered"></div>
-                <div class="preview-note-empty text-muted text-center d-none" id="previewNoteEmpty">
-                  <i class="bi bi-pencil-square display-6 d-block mb-2"></i>
-                  Nothing here yet — switch to <strong>Edit</strong> to write your note.
-                </div>
-              </div>
-            </aside>
-          </div>
+  <!-- Create / Edit Course Modal -->
+  <div class="modal fade" id="courseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="courseModalTitle">New course</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-    </div>
-
-    <!-- Confirm dialog -->
-    <div class="modal fade" id="confirmModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body">
-            <h5 id="confirmTitle">Are you sure?</h5>
-            <p class="text-muted mb-0" id="confirmMessage"></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" id="confirmOkBtn">Confirm</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Import course modal: paste a course JSON or upload a .json file -->
-    <div class="modal fade" id="importCourseModal" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Import a course</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p class="text-muted small mb-3">
-              Paste a course JSON below, or pick a <code>.json</code> file exported from this app.
-              The imported course gets a fresh id so it never collides with your existing courses.
-            </p>
+        <div class="modal-body">
+          <form id="courseForm">
             <div class="mb-3">
-              <label class="form-label" for="importCourseFile">From file</label>
-              <input class="form-control" type="file" id="importCourseFile" accept=".json,application/json">
+              <label class="form-label">Course title</label>
+              <input type="text" class="form-control" id="courseTitleInput" required maxlength="120"
+                placeholder="e.g. Learn Web Development" />
             </div>
-            <div class="mb-2">
-              <label class="form-label" for="importCourseJson">Or paste JSON</label>
-              <textarea class="form-control" id="importCourseJson" rows="10" placeholder='{ "title": "My course", "lessons": [ ... ] }'></textarea>
+            <div class="mb-3">
+              <label class="form-label">Description (optional)</label>
+              <textarea class="form-control" id="courseDescInput" rows="2" maxlength="500"
+                placeholder="Short description of what this course covers"></textarea>
             </div>
-            <div id="importCourseError" class="alert alert-danger py-2 small d-none mb-0"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="importCourseSubmit">
-              <i class="bi bi-upload me-1"></i> Import course
-            </button>
-          </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0">Authors <span class="text-muted small">(optional)</span></label>
+                <button type="button" class="btn btn-sm btn-outline-primary ocb-action-btn" id="addAuthorRowBtn">
+                  <i class="bi bi-plus"></i> Add author
+                </button>
+              </div>
+              <div class="text-muted small mb-2">Each author can have an optional link (LinkedIn, portfolio, X, etc.).
+              </div>
+              <div id="courseFormAuthors"></div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tags <span class="text-muted small">(optional, press Enter to
+                  add)</span></label>
+              <div class="ocb-chip-input-wrap">
+                <div id="courseFormTags" class="ocb-chip-list" aria-label="Course tags"></div>
+                <input type="text" class="form-control" id="courseTagsInput"
+                  placeholder="e.g. javascript, frontend, beginner" maxlength="40" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Course language(s) <span class="text-muted small">(optional, press Enter to
+                  add)</span></label>
+              <div class="ocb-chip-input-wrap">
+                <div id="courseFormLanguages" class="ocb-chip-list" aria-label="Course languages"></div>
+                <input type="text" class="form-control" id="courseLanguagesInput"
+                  placeholder="e.g. English, বাংলা, Español" maxlength="40" autocomplete="off" />
+              </div>
+            </div>
+
+            <p class="text-muted small mb-0">
+              <i class="bi bi-info-circle me-1"></i>
+              You can add lessons after the course is created — use the
+              <strong>Add lesson</strong> button on the course page.
+            </p>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveCourseBtn">Create course</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Note preview modal (long notes from the lesson form) -->
-    <div class="modal fade" id="notePreviewModal" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="notePreviewTitle">Note</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <pre id="notePreviewBody" class="mb-0" style="white-space: pre-wrap; word-break: break-word; font-family: inherit; max-height: 75vh; overflow-y: auto;"></pre>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-          </div>
+  <!-- Add / Edit Lesson Modal -->
+  <div class="modal fade" id="lessonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="lessonModalTitle">Add lesson</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-    </div>
+        <div class="modal-body">
+          <form id="lessonForm">
+            <div class="mb-3">
+              <label class="form-label">Lesson title</label>
+              <input type="text" class="form-control" id="lessonTitleInput" required maxlength="160"
+                placeholder="e.g. Introduction to Flexbox" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Resource</label>
+              <ul class="nav nav-pills nav-sm mb-2" id="resourceTabs">
+                <li class="nav-item">
+                  <button class="nav-link active" data-tab="link" type="button">Link</button>
+                </li>
+                <li class="nav-item">
+                  <button class="nav-link" data-tab="note" type="button">Note</button>
+                </li>
+                <li class="nav-item">
+                  <button class="nav-link" data-tab="markdown" type="button">Markdown</button>
+                </li>
+              </ul>
 
-    <!-- Add / Edit Task Modal (instructor) -->
-    <div class="modal fade" id="taskModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="taskModalTitle">Add task</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="taskForm">
-              <div class="mb-3">
-                <label class="form-label">Task title</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="taskTitleInput"
-                  required
-                  maxlength="160"
-                  placeholder="e.g. Explain flexbox justify-content"
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Question (Markdown)</label>
-                <textarea
-                  class="form-control font-monospace"
-                  id="taskQuestionInput"
-                  rows="5"
-                  placeholder="The question the learner will see. Supports **bold**, lists, code blocks, etc."
-                ></textarea>
-                <div class="form-text">Visible to learners.</div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">LLM instruction</label>
-                <textarea
-                  class="form-control font-monospace"
-                  id="taskInstructionInput"
-                  rows="6"
-                  placeholder="Hidden from learners. Give Groq the context, the grading rules, and the feedback format you want."
-                ></textarea>
+              <div class="tab-pane" data-pane="link">
+                <input type="text" class="form-control" id="resourceLinkInput"
+                  placeholder="https://example.com/article" />
                 <div class="form-text">
-                  Hidden from learners. Used to tell the LLM how to evaluate the learner's answer and
-                  how to format its feedback.
+                  Paste any <strong>URL</strong> (article, YouTube, website, etc.).
                 </div>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" id="saveTaskBtn">Create task</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Task runner modal (learner) -->
-    <div class="modal fade" id="taskRunnerModal" tabindex="-1">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-pink text-white"><i class="bi bi-mortarboard-fill me-1"></i> SRE Assignment</span>
-              <h5 class="modal-title mb-0" id="taskRunnerTitle">Task</h5>
-              <span id="taskRunnerStatusBadge" class="badge bg-secondary">NOT STARTED</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <!-- SRE Mentor Guidance Banner -->
-            <div class="sre-mentor-banner d-flex align-items-center gap-3 p-3 mb-3 rounded">
-              <div class="mentor-avatar-badge">
-                <i class="bi bi-stars"></i>
+
+
+              <div class="tab-pane d-none" data-pane="note">
+                <textarea class="form-control" id="resourceNoteInput" rows="5"
+                  placeholder="Write your note here..."></textarea>
               </div>
-              <div class="small">
-                <strong>Senior SRE Mentor:</strong> Submissions are evaluated for technical accuracy, system internals (<code>/proc</code>, signals, network packets), error handling, and reasoning. If revision is needed, you'll receive constructive hints to improve your solution.
+
+              <div class="tab-pane d-none" data-pane="markdown">
+                <textarea class="form-control font-monospace" id="resourceMarkdownInput" rows="8"
+                  placeholder="# Heading&#10;&#10;Some **bold** and *italic* text.&#10;&#10;- list item&#10;```js&#10;console.log('code');&#10;```&#10;&#10;[a link](https://example.com)"></textarea>
+                <div class="form-text">
+                  Write GitHub-flavored markdown. Headers, lists, code blocks, links, and images all render in the
+                  preview.
+                </div>
               </div>
             </div>
-
-            <div class="task-split">
+            <div class="mb-3" id="lessonNotesSection">
               <div>
-                <div class="task-split-label"><i class="bi bi-question-circle me-1"></i> Problem & Specifications</div>
-                <div
-                  id="taskRunnerQuestion"
-                  class="markdown-body task-pane task-pane-question border rounded p-3 bg-body"
-                ></div>
+                <label class="form-label mb-0">Notes (optional)</label>
               </div>
-              <div>
-                <div class="task-split-label d-flex justify-content-between">
-                  <span><i class="bi bi-code-square me-1"></i> Your Solution & Explanation</span>
-                  <span class="text-muted small">Markdown, Code & GitHub Links Supported</span>
-                </div>
-                <textarea
-                  id="taskRunnerAnswer"
-                  class="form-control task-pane task-pane-answer font-monospace"
-                  rows="14"
-                  placeholder="Paste your script / code and write your technical explanations here...&#10;&#10;```bash&#10;#!/bin/bash&#10;set -euo pipefail&#10;...&#10;```&#10;&#10;### Technical Explanation:&#10;1. How /proc was inspected...&#10;2. Why SIGTERM was used before SIGKILL...&#10;3. Systemd timer reliability considerations..."
-                ></textarea>
-                <div class="d-flex justify-content-between align-items-center mt-2">
-                  <span class="text-muted small"><i class="bi bi-shield-lock me-1"></i> Private submission</span>
-                  <button type="button" class="btn btn-pink" id="taskRunnerSubmit">
-                    <i class="bi bi-send me-1"></i> Submit for Mentor Review
-                  </button>
-                </div>
-              </div>
+              <textarea class="form-control mt-2" id="lessonNotesInput" rows="3"
+                placeholder="Your own thoughts or summary"></textarea>
             </div>
-            <div class="task-feedback-wrap mt-3">
-              <div class="task-feedback-head d-flex align-items-center justify-content-between">
-                <div>
-                  <strong><i class="bi bi-stars text-pink me-1"></i> SRE Mentor Feedback</strong>
-                  <span id="taskRunnerSpinner" class="spinner-border spinner-border-sm text-pink d-none ms-2" role="status" aria-hidden="true"></span>
-                </div>
-                <div id="taskRunnerEvalBadge"></div>
-              </div>
-              <div id="taskRunnerFeedback" class="markdown-body task-pane task-feedback border rounded p-3 bg-body-tertiary">
-                <span class="text-muted">Submit your answer to receive detailed technical evaluation from your SRE mentor.</span>
-              </div>
-            </div>
-            <div id="taskRunnerSubmissions" class="mt-3"></div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveLessonBtn">Save lesson</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resource preview modal -->
+  <div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered preview-modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title me-2" id="previewTitle">Preview</h5>
+          <a type="button" class="btn btn-sm btn-outline-secondary me-2 d-none" id="previewOpenExternalBtn"
+            target="_blank" rel="noopener noreferrer" title="Open this resource in a new tab">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Open in new tab
+          </a>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0 preview-modal-body" id="previewModalBody">
+          <div class="preview-content" id="previewBody" style="min-height: 300px;">
+            <div class="text-center text-white-50 py-5">Loading...</div>
           </div>
+          <aside class="preview-note-pane" id="previewNotePane" aria-label="Lesson note">
+            <div class="preview-note-head">
+              <div class="preview-note-head-text">
+                <i class="bi bi-journal-text me-1"></i>
+                <strong>My note</strong>
+              </div>
+              <div class="preview-note-toggle btn-group btn-group-sm" role="group"
+                aria-label="Toggle between edit and view">
+                <button type="button" class="btn btn-outline-secondary active" id="previewNoteEditBtn" data-mode="edit">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="previewNoteViewBtn" data-mode="view">
+                  <i class="bi bi-eye"></i> View
+                </button>
+              </div>
+            </div>
+            <div class="preview-note-edit" id="previewNoteEditWrap">
+              <textarea id="previewNoteInput" class="form-control preview-note-input"
+                placeholder="# Heading&#10;&#10;Write your learning notes in **markdown**...&#10;&#10;- bullet&#10;- [link](https://example.com)&#10;```js&#10;console.log('hi');&#10;```"
+                spellcheck="false"></textarea>
+              <div class="preview-note-status small text-muted" id="previewNoteStatus" aria-live="polite">
+                <i class="bi bi-cloud-check"></i> Saved
+              </div>
+            </div>
+            <div class="preview-note-view d-none" id="previewNoteViewWrap">
+              <div class="preview-markdown preview-note-rendered" id="previewNoteRendered"></div>
+              <div class="preview-note-empty text-muted text-center d-none" id="previewNoteEmpty">
+                <i class="bi bi-pencil-square display-6 d-block mb-2"></i>
+                Nothing here yet — switch to <strong>Edit</strong> to write your note.
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Toast -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-      <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
-        <div class="d-flex">
-          <div class="toast-body" id="toastBody">Done</div>
-          <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-          ></button>
+  <!-- Confirm dialog -->
+  <div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h5 id="confirmTitle">Are you sure?</h5>
+          <p class="text-muted mb-0" id="confirmMessage"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmOkBtn">Confirm</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-    <script src="/app.js"></script>
-  </body>
+  <!-- Import course modal: paste a course JSON or upload a .json file -->
+  <div class="modal fade" id="importCourseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Import a course</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            Paste a course JSON below, or pick a <code>.json</code> file exported from this app.
+            The imported course gets a fresh id so it never collides with your existing courses.
+          </p>
+          <div class="mb-3">
+            <label class="form-label" for="importCourseFile">From file</label>
+            <input class="form-control" type="file" id="importCourseFile" accept=".json,application/json">
+          </div>
+          <div class="mb-2">
+            <label class="form-label" for="importCourseJson">Or paste JSON</label>
+            <textarea class="form-control" id="importCourseJson" rows="10"
+              placeholder='{ "title": "My course", "lessons": [ ... ] }'></textarea>
+          </div>
+          <div id="importCourseError" class="alert alert-danger py-2 small d-none mb-0"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="importCourseSubmit">
+            <i class="bi bi-upload me-1"></i> Import course
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note preview modal (long notes from the lesson form) -->
+  <div class="modal fade" id="notePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="notePreviewTitle">Note</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <pre id="notePreviewBody" class="mb-0"
+            style="white-space: pre-wrap; word-break: break-word; font-family: inherit; max-height: 75vh; overflow-y: auto;"></pre>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Task Modal (instructor) -->
+  <div class="modal fade" id="taskModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskModalTitle">Add task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="taskForm">
+            <div class="mb-3">
+              <label class="form-label">Task title</label>
+              <input type="text" class="form-control" id="taskTitleInput" required maxlength="160"
+                placeholder="e.g. Explain flexbox justify-content" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Question (Markdown)</label>
+              <textarea class="form-control font-monospace" id="taskQuestionInput" rows="5"
+                placeholder="The question the learner will see. Supports **bold**, lists, code blocks, etc."></textarea>
+              <div class="form-text">Visible to learners.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">LLM instruction</label>
+              <textarea class="form-control font-monospace" id="taskInstructionInput" rows="6"
+                placeholder="Hidden from learners. Give Groq the context, the grading rules, and the feedback format you want."></textarea>
+              <div class="form-text">
+                Hidden from learners. Used to tell the LLM how to evaluate the learner's answer and
+                how to format its feedback.
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveTaskBtn">Create task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task runner modal (learner) -->
+  <div class="modal fade" id="taskRunnerModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-pink text-white"><i class="bi bi-mortarboard-fill me-1"></i> SRE Assignment</span>
+            <h5 class="modal-title mb-0" id="taskRunnerTitle">Task</h5>
+            <span id="taskRunnerStatusBadge" class="badge bg-secondary">NOT STARTED</span>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- SRE Mentor Guidance Banner -->
+          <div class="sre-mentor-banner d-flex align-items-center gap-3 p-3 mb-3 rounded">
+            <div class="mentor-avatar-badge">
+              <i class="bi bi-stars"></i>
+            </div>
+            <div class="small">
+              <strong>Senior SRE Mentor:</strong> Submissions are evaluated for technical accuracy, system internals
+              (<code>/proc</code>, signals, network packets), error handling, and reasoning. If revision is needed,
+              you'll receive constructive hints to improve your solution.
+            </div>
+          </div>
+
+          <div class="task-split">
+            <div>
+              <div class="task-split-label"><i class="bi bi-question-circle me-1"></i> Problem & Specifications</div>
+              <div id="taskRunnerQuestion"
+                class="markdown-body task-pane task-pane-question border rounded p-3 bg-body"></div>
+            </div>
+            <div>
+              <div class="task-split-label d-flex justify-content-between">
+                <span><i class="bi bi-code-square me-1"></i> Your Solution & Explanation</span>
+                <span class="text-muted small">Markdown, Code & GitHub Links Supported</span>
+              </div>
+              <textarea id="taskRunnerAnswer" class="form-control task-pane task-pane-answer font-monospace" rows="14"
+                placeholder="Paste your script / code and write your technical explanations here...&#10;&#10;```bash&#10;#!/bin/bash&#10;set -euo pipefail&#10;...&#10;```&#10;&#10;### Technical Explanation:&#10;1. How /proc was inspected...&#10;2. Why SIGTERM was used before SIGKILL...&#10;3. Systemd timer reliability considerations..."></textarea>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="text-muted small"><i class="bi bi-shield-lock me-1"></i> Private submission</span>
+                <button type="button" class="btn btn-pink" id="taskRunnerSubmit">
+                  <i class="bi bi-send me-1"></i> Submit for Mentor Review
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="task-feedback-wrap mt-3">
+            <div class="task-feedback-head d-flex align-items-center justify-content-between">
+              <div>
+                <strong><i class="bi bi-stars text-pink me-1"></i> SRE Mentor Feedback</strong>
+                <span id="taskRunnerSpinner" class="spinner-border spinner-border-sm text-pink d-none ms-2"
+                  role="status" aria-hidden="true"></span>
+              </div>
+              <div id="taskRunnerEvalBadge"></div>
+            </div>
+            <div id="taskRunnerFeedback"
+              class="markdown-body task-pane task-feedback border rounded p-3 bg-body-tertiary">
+              <span class="text-muted">Submit your answer to receive detailed technical evaluation from your SRE
+                mentor.</span>
+            </div>
+          </div>
+          <div id="taskRunnerSubmissions" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">Done</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+
 </html>
