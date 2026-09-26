@@ -1,7 +1,7 @@
 {
-  "name": "open-course-builder",
+  "name": "personal-curriculum",
   "version": "1.0.0",
-  "description": "A simple CRUD course builder that aggregates web links, text notes, and markdown notes into one place.",
+  "description": "A private, interactive Site Reliability Engineering learning platform following Santhosh Kumar Jampala's roadmap.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
